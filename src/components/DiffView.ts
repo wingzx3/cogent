@@ -25,7 +25,8 @@ export class DiffView {
         DiffView.contentProvider
     );
 
-    private editor?: vscode.TextEditor;
+    // Make editor public so FileUpdateTool can access it
+    public editor?: vscode.TextEditor;
     private decorationManager?: DecorationManager;
     private originalContent: string;
     private uri: vscode.Uri;
@@ -84,7 +85,27 @@ export class DiffView {
         }
     }
 
+    async revertChanges(): Promise<void> {
+        if (!this.editor) return;
+
+        const edit = new vscode.WorkspaceEdit();
+        const fullRange = new vscode.Range(
+            0, 0,
+            this.editor.document.lineCount, 0
+        );
+        
+        edit.replace(this.uri, fullRange, this.originalContent);
+        await vscode.workspace.applyEdit(edit);
+        
+        if (this.editor.document.isDirty) {
+            await this.editor.document.save();
+        }
+    }
+
     async close() {
+        if (this.editor?.document.isDirty) {
+            await this.editor.document.save();
+        }
         if (this.decorationManager) {
             this.decorationManager.clear();
         }

@@ -120,12 +120,16 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
             );
 
             if (choice === 'Apply Changes') {
-                await fs.writeFile(filePath, options.input.content || '');
+                // Save changes to the active document first
+                if (this.diffView.editor?.document.isDirty) {
+                    await this.diffView.editor.document.save();
+                }
                 await this.diffView.close();
                 return new vscode.LanguageModelToolResult([
                     new vscode.LanguageModelTextPart(`File updated successfully at ${options.input.path}`)
                 ]);
             } else {
+                await this.diffView.revertChanges(); // Add this method to DiffView
                 await this.diffView.close();
                 return new vscode.LanguageModelToolResult([
                     new vscode.LanguageModelTextPart(`File update cancelled by user`)
@@ -139,19 +143,6 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
                 new vscode.LanguageModelTextPart(`Error updating file: ${(err as Error)?.message}`)
             ]);
         }
-    }
-
-    async prepareInvocation(
-        options: vscode.LanguageModelToolInvocationPrepareOptions<IFileOperationParams>,
-        _token: vscode.CancellationToken
-    ) {
-        return {
-            invocationMessage: `Updating file at ${options.input.path}`,
-            confirmationMessages: {
-                title: 'Update File',
-                message: new vscode.MarkdownString(`Update the file at ${options.input.path}?`)
-            }
-        };
     }
 }
 
