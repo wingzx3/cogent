@@ -1,0 +1,159 @@
+{
+  "name": "autopilot",
+  "displayName": "Autopilot",
+  "description": "AI-powered development assistant for automated tasks",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "autopilot.assistant",
+        "name": "Autopilot",
+        "description": "AI-powered development assistant",
+        "isSticky": true
+      }
+    ],
+    "languageModelTools": [
+      {
+        "name": "autopilot_readFile",
+        "tags": ["files", "read"],
+        "displayName": "Read File",
+        "modelDescription": "Read and display the contents of a file from the workspace",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Relative path to the file"
+            }
+          },
+          "required": [
+            "path"
+          ]
+        }
+      },
+      {
+        "name": "autopilot_writeFile",
+        "tags": ["files", "create"],
+        "displayName": "Create New File",
+        "modelDescription": "Create a new file in the workspace with specified content.",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Relative path for the new file"
+            },
+            "content": {
+              "type": "string",
+              "description": "The full text content to write into the file. Use real newline characters instead of escaped sequences (e.g., actual line breaks rather than '\\n')."
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ]
+        }
+      },
+      {
+        "name": "autopilot_updateFile",
+        "tags": ["files", "update"],
+        "displayName": "Update File",
+        "modelDescription": "Update an existing file in the workspace with new content",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Relative path to the file"
+            },
+            "content": {
+              "type": "string",
+              "description": "New content for the file"
+            }
+          },
+          "required": [
+            "path",
+            "content"
+          ]
+        }
+      },
+      {
+        "name": "autopilot_runCommand",
+        "tags": ["terminal", "command"],
+        "displayName": "Run Command",
+        "modelDescription": "Execute a command in the VS Code terminal",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "type": "string",
+              "description": "Command to execute"
+            }
+          },
+          "required": [
+            "command"
+          ]
+        }
+      },
+      {
+        "name": "multi-tool-use-parallel",
+        "tags": ["tools", "parallel"],
+        "displayName": "Execute Tools in Parallel",
+        "modelDescription": "Execute multiple tools simultaneously",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "tool_uses": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "recipient_name": {
+                    "type": "string",
+                    "description": "Name of the tool to execute"
+                  },
+                  "parameters": {
+                    "type": "object",
+                    "description": "Parameters for the tool"
+                  }
+                },
+                "required": ["recipient_name", "parameters"]
+              }
+            }
+          },
+          "required": ["tool_uses"]
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.10",
+    "@types/vscode": "^1.95.0",
+    "@types/mocha": "^10.0.9",
+    "@typescript-eslint/eslint-plugin": "^8.10.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "eslint": "^9.13.0",
+    "typescript": "^5.6.3",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1"
+  },
+  "dependencies": {
+    "@vscode/chat-extension-utils": "^0.0.0-alpha.5"
+  }
+}
