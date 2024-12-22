@@ -108,11 +108,10 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
                         lines.slice(0, i + 1).join('\n'),
                         i
                     );
-                    await new Promise(resolve => setTimeout(resolve, 50)); // Animation delay
+                    await new Promise(resolve => setTimeout(resolve, 50));
                 }
             }
 
-            // Replace the old confirmation with new method
             const choice = await this.diffView.waitForConfirmation();
 
             if (choice === 'apply') {
@@ -166,7 +165,7 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             terminal.sendText(options.input.command);
 
             const result = await execAsync(options.input.command, { cwd: workspacePath });
-            const response = [
+            const output = [
                 `Command executed: ${options.input.command}`,
                 '',
                 'Output:',
@@ -176,10 +175,10 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             ].filter(Boolean).join('\n');
 
             return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(response)
+                new vscode.LanguageModelTextPart(output)
             ]);
         } catch (err: any) {
-            const errorResponse = [
+            const errorOutput = [
                 `Command executed: ${options.input.command}`,
                 '',
                 'Output:',
@@ -189,7 +188,7 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             ].filter(Boolean).join('\n');
 
             return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(errorResponse)
+                new vscode.LanguageModelTextPart(errorOutput)
             ]);
         }
     }
