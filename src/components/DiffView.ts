@@ -31,12 +31,34 @@ export class DiffView {
     private originalContent: string;
     private uri: vscode.Uri;
     private diffUri: vscode.Uri;
+    private applyButton: vscode.StatusBarItem;
+    private cancelButton: vscode.StatusBarItem;
+    private resolveConfirmation?: (value: 'apply' | 'cancel') => void;
 
     constructor(filePath: string, originalContent: string) {
         this.originalContent = originalContent;
         this.uri = vscode.Uri.file(filePath);
         const fileName = path.basename(filePath);
         this.diffUri = vscode.Uri.parse(`autopilot-diff:${fileName}`);
+
+        // Create status bar items
+        this.applyButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+        this.applyButton.text = "$(check) Apply Changes";
+        this.applyButton.command = 'autopilot.applyChanges';
+        this.applyButton.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
+        
+        this.cancelButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 99);
+        this.cancelButton.text = "$(x) Cancel";
+        this.cancelButton.command = 'autopilot.cancelChanges';
+
+        // Register commands
+        vscode.commands.registerCommand('autopilot.applyChanges', () => {
+            this.resolveConfirmation?.('apply');
+        });
+
+        vscode.commands.registerCommand('autopilot.cancelChanges', () => {
+            this.resolveConfirmation?.('cancel');
+        });
     }
 
     async show(): Promise<boolean> {
@@ -102,7 +124,18 @@ export class DiffView {
         }
     }
 
+    async waitForConfirmation(): Promise<'apply' | 'cancel'> {
+        this.applyButton.show();
+        this.cancelButton.show();
+
+        return new Promise((resolve) => {
+            this.resolveConfirmation = resolve;
+        });
+    }
+
     async close() {
+        this.applyButton.dispose();
+        this.cancelButton.dispose();
         if (this.editor?.document.isDirty) {
             await this.editor.document.save();
         }

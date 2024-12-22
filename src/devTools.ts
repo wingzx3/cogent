@@ -112,15 +112,10 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
                 }
             }
 
-            // Ask user for confirmation
-            const choice = await vscode.window.showInformationMessage(
-                'Review the changes and confirm',
-                'Apply Changes',
-                'Cancel'
-            );
+            // Replace the old confirmation with new method
+            const choice = await this.diffView.waitForConfirmation();
 
-            if (choice === 'Apply Changes') {
-                // Save changes to the active document first
+            if (choice === 'apply') {
                 if (this.diffView.editor?.document.isDirty) {
                     await this.diffView.editor.document.save();
                 }
@@ -129,7 +124,7 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
                     new vscode.LanguageModelTextPart(`File updated successfully at ${options.input.path}`)
                 ]);
             } else {
-                await this.diffView.revertChanges(); // Add this method to DiffView
+                await this.diffView.revertChanges();
                 await this.diffView.close();
                 return new vscode.LanguageModelToolResult([
                     new vscode.LanguageModelTextPart(`File update cancelled by user`)
