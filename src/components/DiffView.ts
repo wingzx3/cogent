@@ -1,62 +1,65 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { DecorationManager } from './DecorationManager';
-
-class DiffContentProvider implements vscode.TextDocumentContentProvider {
-    private contents = new Map<string, string>();
-
-    provideTextDocumentContent(uri: vscode.Uri): string {
-        return this.contents.get(uri.toString()) || '';
-    }
-
-    setContent(uri: vscode.Uri, content: string) {
-        this.contents.set(uri.toString(), content);
-    }
-
-    clear(uri: vscode.Uri) {
-        this.contents.delete(uri.toString());
-    }
-}
 
 export class DiffView {
-    private static readonly contentProvider = new DiffContentProvider();
-    private static readonly registration = vscode.workspace.registerTextDocumentContentProvider(
-        'autopilot-diff',
-        DiffView.contentProvider
-    );
+    private static readonly scheme = 'copilot-diff';
+    private static contentProvider: vscode.TextDocumentContentProvider;
+    private static registration: vscode.Disposable;
+    private static content = new Map<string, string>();
 
-    public editor?: vscode.TextEditor;
-    private decorationManager?: DecorationManager;
-    private originalContent: string;
-    private uri: vscode.Uri;
-    private diffUri: vscode.Uri;
+    private originalUri: vscode.Uri;
+    private modifiedUri: vscode.Uri;
+    private document?: vscode.TextDocument;
+    private disposables: vscode.Disposable[] = [];
 
     constructor(filePath: string, originalContent: string) {
-        this.originalContent = originalContent;
-        this.uri = vscode.Uri.file(filePath);
-        const fileName = path.basename(filePath);
-        this.diffUri = vscode.Uri.parse(`autopilot-diff:${fileName}`);
+        this.originalUri = vscode.Uri.file(filePath);
+        this.modifiedUri = this.originalUri.with({ scheme: DiffView.scheme });
+        
+        // Initialize static content provider if not exists
+        if (!DiffView.contentProvider) {
+            DiffView.contentProvider = {
+                provideTextDocumentContent: (uri: vscode.Uri) => {
+                    return DiffView.content.get(uri.toString()) || '';
+                },
+                onDidChange: new vscode.EventEmitter<vscode.Uri>().event
+            };
+            DiffView.registration = vscode.workspace.registerTextDocumentContentProvider(
+                DiffView.scheme,
+                DiffView.contentProvider
+            );
+        }
+        
+        // Store the original content
+        DiffView.content.set(this.modifiedUri.toString(), originalContent);
     }
 
     async show(): Promise<boolean> {
         try {
-            const fileName = path.basename(this.uri.fsPath);
+            // Open the file first
+            this.document = await vscode.workspace.openTextDocument(this.originalUri);
             
-            // Set the content for the diff view
-            DiffView.contentProvider.setContent(this.diffUri, this.originalContent);
-            
-            this.editor = await vscode.window.showTextDocument(
-                this.uri,
-                { preview: false, viewColumn: vscode.ViewColumn.Active }
+            // Add save listener
+            this.disposables.push(
+                vscode.workspace.onDidSaveTextDocument(async doc => {
+                    if (doc.uri.toString() === this.originalUri.toString()) {
+                        await this.close();
+                        // Show the saved file
+                        const document = await vscode.workspace.openTextDocument(this.originalUri);
+                        await vscode.window.showTextDocument(document, {
+                            preview: false,
+                            viewColumn: vscode.ViewColumn.Active
+                        });
+                    }
+                })
             );
-
-            if (!this.editor) return false;
-
-            this.decorationManager = new DecorationManager(this.editor);
+            
+            // Show diff editor
             await vscode.commands.executeCommand('vscode.diff',
-                this.diffUri,
-                this.uri,
-                `${fileName}: Original ↔ Changes`
+                this.modifiedUri,
+                this.originalUri,
+                `${path.basename(this.originalUri.fsPath)} (Working Tree)`,
+                { preview: true }
             );
 
             return true;
@@ -66,42 +69,31 @@ export class DiffView {
         }
     }
 
-    async update(content: string, line: number) {
-        if (!this.editor) return;
+    async update(content: string, _line: number) {
+        if (!this.document) return;
 
         const edit = new vscode.WorkspaceEdit();
         const fullRange = new vscode.Range(
             0, 0,
-            this.editor.document.lineCount, 0
+            this.document.lineCount, 0
         );
         
-        edit.replace(this.uri, fullRange, content);
-        await vscode.workspace.applyEdit(edit);
-        
-        if (this.decorationManager) {
-            this.decorationManager.updateActiveLine(line);
-            this.decorationManager.updateFadedLines(line + 1, this.editor.document.lineCount);
-        }
-    }
-
-    async revertChanges(): Promise<void> {
-        if (!this.editor) return;
-
-        const edit = new vscode.WorkspaceEdit();
-        const fullRange = new vscode.Range(
-            0, 0,
-            this.editor.document.lineCount, 0
-        );
-        
-        edit.replace(this.uri, fullRange, this.originalContent);
+        edit.replace(this.originalUri, fullRange, content);
         await vscode.workspace.applyEdit(edit);
     }
 
     async close() {
-        if (this.decorationManager) {
-            this.decorationManager.clear();
-        }
-        DiffView.contentProvider.clear(this.diffUri);
+        // Clean up the stored content
+        DiffView.content.delete(this.modifiedUri.toString());
+        // Dispose all listeners
+        this.disposables.forEach(d => d.dispose());
         await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
+    }
+
+    static dispose() {
+        if (DiffView.registration) {
+            DiffView.registration.dispose();
+        }
+        DiffView.content.clear();
     }
 }

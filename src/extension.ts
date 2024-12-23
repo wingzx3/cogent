@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { registerToolUserChatParticipant } from './toolParticipant';
 import { FileReadTool, FileWriteTool, FileUpdateTool, CommandRunTool, ParallelToolUseTool } from './tools';
+import { DiffView } from './components/DiffView';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Autopilot extension is now active!');
@@ -18,4 +19,6 @@ export function activate(context: vscode.ExtensionContext) {
     registerToolUserChatParticipant(context);
 }
 
-export function deactivate() {}
+export function deactivate() {
+    DiffView.dispose();
+}

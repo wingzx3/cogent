@@ -113,7 +113,7 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
             }
 
             return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(`File modifications complete at ${options.input.path}. Review and save changes manually.`)
+                new vscode.LanguageModelTextPart(`Changes shown in diff view for ${options.input.path}. Review and save to apply changes.`)
             ]);
         } catch (err: unknown) {
             if (this.diffView) {
