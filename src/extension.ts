@@ -8,11 +8,11 @@ export function activate(context: vscode.ExtensionContext) {
     
     // Register tools
     context.subscriptions.push(
-        //vscode.lm.registerTool('autopilot_readFile', new FileReadTool()),
+        vscode.lm.registerTool('autopilot_readFile', new FileReadTool()),
         vscode.lm.registerTool('autopilot_writeFile', new FileWriteTool()),
         vscode.lm.registerTool('autopilot_updateFile', new FileUpdateTool()),
         vscode.lm.registerTool('autopilot_runCommand', new CommandRunTool()),
-        vscode.lm.registerTool('multi-tool-use-parallel', new ParallelToolUseTool())
+        //vscode.lm.registerTool('multi-tool-use-parallel', new ParallelToolUseTool())
     );
     
     // Register the tool participant

@@ -8,7 +8,8 @@ import { DiffView } from './components/DiffView';
 const execAsync = promisify(exec);
 
 interface IFileOperationParams {
-    path: string;
+    path?: string;
+    paths?: string[];
     content?: string;
 }
 
@@ -33,14 +34,30 @@ export class FileReadTool implements vscode.LanguageModelTool<IFileOperationPara
             if (!workspacePath) {
                 throw new Error('No workspace folder found');
             }
-            const filePath = path.join(workspacePath, options.input.path);
-            const content = await fs.readFile(filePath, 'utf-8');
+
+            const filePaths = options.input.paths || (options.input.path ? [options.input.path] : []);
+            
+            const results = await Promise.all(filePaths.map(async (filePath) => {
+                const fullPath = path.join(workspacePath, filePath);
+                try {
+                    const content = await fs.readFile(fullPath, 'utf-8');
+                    return [
+                        '=' .repeat(80),
+                        `📝 File: ${filePath}`,
+                        '=' .repeat(80),
+                        content
+                    ].join('\n');
+                } catch (err) {
+                    return `Error reading ${filePath}: ${(err as Error)?.message}`;
+                }
+            }));
+
             return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(content)
+                new vscode.LanguageModelTextPart(results.join('\n\n'))
             ]);
         } catch (err: unknown) {
             return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(`Error reading file: ${(err as Error)?.message}`)
+                new vscode.LanguageModelTextPart(`Error reading files: ${(err as Error)?.message}`)
             ]);
         }
     }
@@ -55,6 +72,9 @@ export class FileWriteTool implements vscode.LanguageModelTool<IFileOperationPar
             const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
             if (!workspacePath) {
                 throw new Error('No workspace folder found');
+            }
+            if (!options.input.path) {
+                throw new Error('File path is required');
             }
             const filePath = path.join(workspacePath, options.input.path);
             await fs.writeFile(filePath, options.input.content || '');
@@ -94,7 +114,9 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
             if (!workspacePath) {
                 throw new Error('No workspace folder found');
             }
-            
+            if (!options.input.path) {
+                throw new Error('File path is required');
+            }
             const filePath = path.join(workspacePath, options.input.path);
             const originalContent = await fs.readFile(filePath, 'utf-8');
             
@@ -235,8 +257,7 @@ export class ParallelToolUseTool implements vscode.LanguageModelTool<IParallelTo
                 new vscode.LanguageModelTextPart(output)
             ]);
         } catch (err: unknown) {
-            return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(`Error executing parallel tools: ${(err as Error)?.message}`)
+            return new vscode.LanguageModelToolResult([                new vscode.LanguageModelTextPart(`Error executing parallel tools: ${(err as Error)?.message}`)
             ]);
         }
     }

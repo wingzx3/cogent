@@ -11,6 +11,10 @@ export interface ToolCallsMetadata {
     toolCallResults: Record<string, vscode.LanguageModelToolResult>;
 }
 
+interface ReadFileToolInput {
+    paths: string[];
+}
+
 export function isTsxToolUserMetadata(obj: unknown): obj is TsxToolUserMetadata {
     return !!obj &&
         !!(obj as TsxToolUserMetadata).toolCallsMetadata &&
@@ -80,6 +84,10 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                 } else if (part instanceof vscode.LanguageModelToolCallPart) {
                     if (part.name === 'autopilot_updateFile') {
                         hasFileUpdateCall = true;
+                    }
+                    if (part.name === 'autopilot_readFile') {
+                        const input = part.input as ReadFileToolInput;
+                        stream.markdown(`\n\nReading files: ${JSON.stringify(input.paths)}`);
                     }
                     toolCalls.push(part);
                 }

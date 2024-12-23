@@ -79,23 +79,48 @@
                 }
             },
             {
-                "name": "autopilot_readFile",
-                "tags": ["files", "read"],
-                "displayName": "Read File",
-                "modelDescription": "Read the contents of multiple files in the workspace",
+                "name": "multi-tool-use-parallel",
+                "tags": ["tools", "parallel"],
+                "displayName": "Execute Tools in Parallel",
+                "modelDescription": "Execute multiple tools simultaneously",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "paths": {
+                        "tool_uses": {
                             "type": "array",
                             "items": {
-                                "type": "string",
-                                "description": "Relative path to the file"
-                            },
-                            "description": "Array of file paths to read"
+                                "type": "object",
+                                "properties": {
+                                    "recipient_name": {
+                                        "type": "string",
+                                        "description": "Name of the tool to execute"
+                                    },
+                                    "parameters": {
+                                        "type": "object",
+                                        "description": "Parameters for the tool"
+                                    }
+                                },
+                                "required": ["recipient_name", "parameters"]
+                            }
                         }
                     },
-                    "required": ["paths"]
+                    "required": ["tool_uses"]
+                }
+            },
+            {
+                "name": "autopilot_readFile",
+                "tags": ["files", "read"],
+                "displayName": "Read File",
+                "modelDescription": "Read the contents of a file in the workspace",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": "Relative path to the file"
+                        }
+                    },
+                    "required": ["path"]
                 }
             }
         ]
