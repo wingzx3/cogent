@@ -57,7 +57,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
         const toolReferences = [...request.toolReferences];
         const accumulatedToolResults: Record<string, vscode.LanguageModelToolResult> = {};
         const toolCallRounds: ToolCallRound[] = [];
-        let hasTabCountCall = false;
+        let hasFileUpdateCall = false;
 
         const runWithTools = async (): Promise<void> => {
             const requestedTool = toolReferences.shift();
@@ -78,6 +78,9 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                     stream.markdown(part.value);
                     responseStr += part.value;
                 } else if (part instanceof vscode.LanguageModelToolCallPart) {
+                    if (part.name === 'autopilot_updateFile') {
+                        hasFileUpdateCall = true;
+                    }
                     toolCalls.push(part);
                 }
             }
@@ -112,6 +115,13 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
 
         await runWithTools();
 
+        if (hasFileUpdateCall) {
+            stream.button({
+                command: 'autopilot.applyChanges',
+                title: vscode.l10n.t('Apply All Changes')
+            });
+        }
+
         return {
             metadata: {
                 toolCallsMetadata: {
@@ -124,5 +134,12 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
 
     const toolUser = vscode.chat.createChatParticipant('autopilot.assistant', handler);
     toolUser.iconPath = new vscode.ThemeIcon('tools');
-    context.subscriptions.push(toolUser);
+    
+    // Register the apply changes command
+    const applyChangesCommand = vscode.commands.registerCommand('autopilot.applyChanges', async () => {
+        await vscode.workspace.saveAll();
+        vscode.window.showInformationMessage('All changes have been saved');
+    });
+
+    context.subscriptions.push(toolUser, applyChangesCommand);
 }
