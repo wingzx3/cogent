@@ -13,6 +13,16 @@
     "activationEvents": [],
     "main": "./out/extension.js",
     "contributes": {
+        "configuration": {
+            "title": "Autopilot",
+            "properties": {
+                "autopilot.use_full_workspace": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Include full workspace content in the initial prompt. If disabled, files will be read on demand."
+                }
+            }
+        },
         "chatParticipants": [
       {
         "id": "autopilot.assistant",
