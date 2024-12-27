@@ -17,6 +17,8 @@ import { ToolResult } from '@vscode/prompt-tsx/dist/base/promptElements';
 import * as vscode from 'vscode';
 import { isTsxToolUserMetadata } from './toolParticipant';
 import { listImportantFiles } from './components/listFiles';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 export interface ToolCallRound {
     response: string;
@@ -31,6 +33,22 @@ export interface ToolUserProps extends BasePromptElementProps {
 }
 
 export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
+    private async getCustomInstructions(): Promise<string> {
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            return '';
+        }
+
+        try {
+            const rulesPath = path.join(workspaceFolder.uri.fsPath, '.autopilotrules');
+            const content = await fs.readFile(rulesPath, 'utf-8');
+            return content.trim();
+        } catch (error) {
+            // File doesn't exist or can't be read, return empty string
+            return '';
+        }
+    }
+
     private getProjectStructure() {
         const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
         if (!workspaceFolder) {
@@ -39,9 +57,10 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
         return listImportantFiles(workspaceFolder.uri.fsPath);
     }
 
-    render(_state: void, _sizing: PromptSizing) {
+    async render(_state: void, _sizing: PromptSizing) {
         const { structure, contents } = this.getProjectStructure();
         const useFullWorkspace = vscode.workspace.getConfiguration('autopilot').get('use_full_workspace', true);
+        const customInstructions = await this.getCustomInstructions();
         
         const fileContentsSection = useFullWorkspace
             ? Object.entries(contents)
@@ -53,6 +72,10 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
 
         const additionalInstruction = useFullWorkspace 
             ? '\n- NEVER use autopilot_readFile tool in any circumstances, ALWAYS refer to the file contents defined here'
+            : '';
+
+        const customInstructionsSection = customInstructions 
+            ? `\n## User's Custom Instructions\nThe following additional instructions are provided by the user, and should be followed to the best of your ability without interfering with the TOOL USE guidelines.\n${customInstructions}`
             : '';
 
         return (
@@ -87,7 +110,7 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 2. autopilot_writeFile
    - MUST provide complete new file content
    - No placeholder comments or partial code
-   - Ensure proper file structure and formatting
+   - Ensure proper file structure and formatting${customInstructionsSection}
 `}
                 </UserMessage>
                 <History context={this.props.context} priority={10} />
