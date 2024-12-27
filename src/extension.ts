@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { registerToolUserChatParticipant } from './toolParticipant';
-import { FileReadTool, FileWriteTool, FileUpdateTool, CommandRunTool, ParallelToolUseTool } from './tools';
+import { FileReadTool, FileWriteTool, FileUpdateTool, CommandRunTool } from './tools';
 import { DiffView } from './components/DiffView';
 
 export function activate(context: vscode.ExtensionContext) {
