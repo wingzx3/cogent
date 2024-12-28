@@ -110,7 +110,11 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 2. autopilot_writeFile
    - MUST provide complete new file content
    - No placeholder comments or partial code
-   - Ensure proper file structure and formatting${customInstructionsSection}
+   - Ensure proper file structure and formatting
+
+3. autopilot_runCommand
+   - Avoid running dangerous commands
+   - Commands that create a template or scaffold a project should use the current working directory, avoid creating sub folder projects.${customInstructionsSection}
 `}
                 </UserMessage>
                 <History context={this.props.context} priority={10} />
