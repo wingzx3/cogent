@@ -27,6 +27,9 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
         options: vscode.LanguageModelToolInvocationOptions<ICommandParams>,
         token: vscode.CancellationToken
     ): Promise<vscode.LanguageModelToolResult> {
+        const stripAnsi = (str: string) => {
+            return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+        };
         return new Promise((resolve, reject) => {
             if (!CommandRunTool.nodePty) {
                 return resolve(new vscode.LanguageModelToolResult([
@@ -47,7 +50,7 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             });
 
             ptyProcess.onData((data: string) => {
-                output += data;
+                output += stripAnsi(data);
                 writeEmitter.fire(data);
             });
 
@@ -78,7 +81,7 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             let exitTimeout = setTimeout(() => {
                 ptyProcess.kill();
                 resolve(new vscode.LanguageModelToolResult([
-                    new vscode.LanguageModelTextPart(output || 'Command timed out')
+                    new vscode.LanguageModelTextPart(stripAnsi(output) || 'Command timed out')
                 ]));
             }, 30000); // 30 second timeout
 
@@ -94,7 +97,7 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             ptyProcess.onExit(() => {
                 clearTimeout(exitTimeout);
                 resolve(new vscode.LanguageModelToolResult([
-                    new vscode.LanguageModelTextPart(output || 'Command completed')
+                    new vscode.LanguageModelTextPart(stripAnsi(output) || 'Command completed')
                 ]));
             });
         });
