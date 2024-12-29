@@ -113,7 +113,7 @@ Autopilot: "I'll help you create a secure authentication component. First, let m
 
 ## 🎭 Behind the Scenes
 
-Autopilot is powered by the mighty GitHub Copilot and cutting-edge models. It's like having a tiny developer living in your VS Code. Don't worry, we feed them virtual cookies! 🍪
+Autopilot is powered by the GitHub Copilot and mighty Claude-3.5-Sonnet model. It's like having a tiny developer living in your VS Code. Don't worry, we feed them virtual cookies! 🍪
 
 ## 🤝 Contributing
 
@@ -142,4 +142,4 @@ MIT - Because sharing is caring! Feel free to use this in your projects, but rem
 
 Made with ❤️ and lots of ☕ by awesome developers like you!
 
-*Remember: The best code is the one that works... but the second-best is the one that works AND makes your colleagues smile!* 😉
+*Remember: The best code is the one that works... but the second-best is not writing any code at all!* 😉
