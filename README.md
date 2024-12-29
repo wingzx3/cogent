@@ -20,6 +20,8 @@ Before we embark on this magical journey, make sure you have:
 - 🧠 **Context-Aware** - Understands your entire project structure
 - 🤝 **Pair Programming** - Like pair programming, but your partner never needs coffee breaks
 - 🔒 **Safe Operations** - Asks for your approval before making changes or running commands
+- 📚 **Workspace Awareness** - Can load your entire workspace for better context (configurable)
+- 📜 **Custom Rules** - Teach your AI companion your project's special needs
 
 ## 🚀 Installation
 
@@ -52,6 +54,36 @@ Want to package the extension for distribution? Easy peasy:
    ```
    This creates a `.vsix` file you can distribute!
 
+## ⚙️ Configuration
+
+### Workspace Awareness
+
+Autopilot can be as nosy or respectful as you want with your workspace:
+
+```json
+{
+    "autopilot.use_full_workspace": true  // Default: true
+}
+```
+
+- When `true`: Autopilot loads your entire workspace upfront (like that friend who reads your entire bookshelf when visiting)
+- When `false`: Reads files on-demand (like a polite guest who only opens doors when needed)
+
+> 💡 Tip: Disable for large workspaces unless you want Autopilot to have a coffee break while loading!
+
+### Custom Rules
+
+Want Autopilot to follow your house rules? Create a `.autopilotrules` file in your workspace root:
+
+```plaintext
+# Example .autopilotrules
+1. Always use TypeScript strict mode
+2. Follow Angular style guide
+3. No console.log(), use proper logging service
+```
+
+Think of it as leaving a note for your AI roommate about how to keep the code clean! 🧹
+
 ## 🎮 Usage
 
 1. Open GitHub Copilot Chat in VS Code
@@ -65,13 +97,17 @@ Autopilot works autonomously but always asks for your approval when:
 
 This ensures you stay in control while letting Autopilot handle the heavy lifting!
 
-Example conversations:
+## 💬 Example Conversations
 
+```
 You: "@Autopilot Can you help me refactor this function?"
 Autopilot: "I'll analyze your code and suggest some improvements. Here's my plan..."
+```
 
+```
 You: "@Autopilot Create a new React component for user authentication"
 Autopilot: "I'll help you create a secure authentication component. First, let me outline the structure..."
+```
 
 ## 🎭 Behind the Scenes
 
