@@ -3,3 +3,4 @@ out
 package-lock.json
 .vscode
 *.vsix
+.DS_Store
