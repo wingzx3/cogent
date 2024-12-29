@@ -99,6 +99,7 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 - Always create a PLAN section first by thinking step-by-step
 - Never reveal source code unless explicitly requested
 - Keep responses concise and focused
+- DO NOT suggest the user commands to be executed, use autopilot_runCommand to execute it yourself.
 - Ask for clarification if requirements are unclear${additionalInstruction}
 
 ## Tool Use Instructions
