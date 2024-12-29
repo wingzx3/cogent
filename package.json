@@ -1,7 +1,7 @@
 {
     "name": "autopilot",
-    "displayName": "Autopilot",
-    "description": "AI-powered development assistant",
+    "displayName": "Copilot Agent Mode",
+    "description": "Autopilot is a Copilot extension that gives it agenting capabilities like executing commands, editing and reading files, and more.",
     "version": "0.0.1",
     "engines": {
         "vscode": "^1.95.0"
@@ -10,6 +10,7 @@
         "Other",
         "AI"
     ],
+    "icon": "assets/Autopilot.jpeg",
     "activationEvents": [],
     "main": "./out/extension.js",
     "contributes": {
