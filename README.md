@@ -64,7 +64,7 @@ Autopilot can be as nosy or respectful as you want with your workspace:
 
 ```json
 {
-    "autopilot.use_full_workspace": true  // Default: true
+    "autopilot.use_full_workspace": true  // Default: false
 }
 ```
 

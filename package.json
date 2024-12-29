@@ -25,7 +25,7 @@
             "properties": {
                 "autopilot.use_full_workspace": {
                     "type": "boolean",
-                    "default": true,
+                    "default": false,
                     "description": "Include full workspace content in the initial prompt. If disabled, files will be read on demand.\n\n Note: Not recommended for large workspaces."
                 }
             }
