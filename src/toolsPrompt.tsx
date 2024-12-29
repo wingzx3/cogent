@@ -57,10 +57,28 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
         return listImportantFiles(workspaceFolder.uri.fsPath);
     }
 
+    private getOSLevel(): string {
+        return process.platform === 'win32' 
+            ? 'Windows' 
+            : process.platform === 'darwin' 
+                ? 'macOS' 
+                : 'Linux';
+    }
+
+    private getShellType(): string {
+        return process.platform === 'win32' 
+            ? 'PowerShell' 
+            : process.platform === 'darwin'
+                ? 'zsh'
+                : 'bash';
+    }
+
     async render(_state: void, _sizing: PromptSizing) {
         const { structure, contents } = this.getProjectStructure();
         const useFullWorkspace = vscode.workspace.getConfiguration('cogent').get('use_full_workspace', true);
         const customInstructions = await this.getCustomInstructions();
+        const osLevel = this.getOSLevel();
+        const shellType = this.getShellType();
         
         const fileContentsSection = useFullWorkspace
             ? Object.entries(contents)
@@ -95,6 +113,9 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
 ${structure}
 ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 
+## User's OS Level
+- ${osLevel} (using ${shellType})
+
 ## Critical Rules
 - Always create a PLAN section first by thinking step-by-step
 - Never reveal source code unless explicitly requested
@@ -115,6 +136,7 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 
 3. cogent_runCommand
    - Avoid running dangerous commands
+   - Run commands according to User's OS Level and Shell Type
    - Commands that create a template or scaffold a project should use the current working directory, avoid creating sub folder projects.${customInstructionsSection}
 `}
                 </UserMessage>

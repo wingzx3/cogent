@@ -10,12 +10,12 @@
         "Other",
         "AI"
     ],
-    "icon": "assets/Cogent.jpeg",
+    "icon": "assets/cogent.jpeg",
     "license": "MIT",
     "publisher": "kturung",
     "repository": {
 		"type": "git",
-		"url": "https://github.com/kturung/copilot-autopilot"
+		"url": "https://github.com/kturung/cogent"
 	},
     "activationEvents": [],
     "main": "./out/extension.js",
