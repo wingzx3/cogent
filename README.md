@@ -2,6 +2,8 @@
 
 > "Because rubber duck debugging is better with a duck that talks back!" 
 
+![Autopilot Demo](assets/autopilot.gif)
+
 Autopilot is an agentic Github Copilot VSCode chat extension that transforms your coding environment into an autonomous development powerhouse. Think of it as having a brilliant (and slightly nerdy) AI agent who not only understands your code but can independently take actions while keeping you in control. It's your witty companion that makes coding feel like pair programming with a super-smart friend who never needs coffee breaks!
 
 ## 🎯 Prerequisites
