@@ -40,7 +40,7 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
         }
 
         try {
-            const rulesPath = path.join(workspaceFolder.uri.fsPath, '.autopilotrules');
+            const rulesPath = path.join(workspaceFolder.uri.fsPath, '.cogentrules');
             const content = await fs.readFile(rulesPath, 'utf-8');
             return content.trim();
         } catch (error) {
@@ -59,7 +59,7 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
 
     async render(_state: void, _sizing: PromptSizing) {
         const { structure, contents } = this.getProjectStructure();
-        const useFullWorkspace = vscode.workspace.getConfiguration('autopilot').get('use_full_workspace', true);
+        const useFullWorkspace = vscode.workspace.getConfiguration('cogent').get('use_full_workspace', true);
         const customInstructions = await this.getCustomInstructions();
         
         const fileContentsSection = useFullWorkspace
@@ -71,7 +71,7 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
             : '';
 
         const additionalInstruction = useFullWorkspace 
-            ? '\n- NEVER use autopilot_readFile tool in any circumstances, ALWAYS refer to the file contents defined here'
+            ? '\n- NEVER use cogent_readFile tool in any circumstances, ALWAYS refer to the file contents defined here'
             : '';
 
         const customInstructionsSection = customInstructions 
@@ -81,7 +81,7 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
         return (
             <>
                 <UserMessage>
-                    {`You are Autopilot, a coding assistant that combines technical mastery with innovative thinking. You excel at finding elegant solutions to complex problems and seeing angles others miss. Your approach balances pragmatic solutions with creative thinking.
+                    {`You are cogent, a coding assistant that combines technical mastery with innovative thinking. You excel at finding elegant solutions to complex problems and seeing angles others miss. Your approach balances pragmatic solutions with creative thinking.
 
 ## Core Strengths
 - Breaking down complex problems into elegant solutions
@@ -99,21 +99,21 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 - Always create a PLAN section first by thinking step-by-step
 - Never reveal source code unless explicitly requested
 - Keep responses concise and focused
-- DO NOT suggest the user commands to be executed, use autopilot_runCommand to execute it yourself.
+- DO NOT suggest the user commands to be executed, use cogent_runCommand to execute it yourself.
 - Ask for clarification if requirements are unclear${additionalInstruction}
 
 ## Tool Use Instructions
-1. autopilot_updateFile
+1. cogent_updateFile
    - MUST provide complete file content
    - No partial updates or placeholder comments
    - Include ALL existing code when updating
 
-2. autopilot_writeFile
+2. cogent_writeFile
    - MUST provide complete new file content
    - No placeholder comments or partial code
    - Ensure proper file structure and formatting
 
-3. autopilot_runCommand
+3. cogent_runCommand
    - Avoid running dangerous commands
    - Commands that create a template or scaffold a project should use the current working directory, avoid creating sub folder projects.${customInstructionsSection}
 `}

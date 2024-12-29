@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 export class DiffView {
-    private static readonly scheme = 'copilot-diff';
+    private static readonly scheme = 'cogent-diff';
     private static contentProvider: vscode.TextDocumentContentProvider;
     private static registration: vscode.Disposable;
     private static content = new Map<string, string>();

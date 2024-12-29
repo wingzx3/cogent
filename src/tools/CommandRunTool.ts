@@ -55,7 +55,7 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             });
 
             const ptyTerminal = vscode.window.createTerminal({
-                name: 'Autopilot Command',
+                name: 'Cogent Command',
                 pty: {
                     onDidWrite: writeEmitter.event,
                     open: () => {

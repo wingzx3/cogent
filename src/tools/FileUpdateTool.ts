@@ -53,4 +53,17 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
             ]);
         }
     }
+
+    async prepareInvocation(
+        options: vscode.LanguageModelToolInvocationPrepareOptions<IFileOperationParams>,
+        _token: vscode.CancellationToken
+    ) {
+        return {
+            invocationMessage: `Updating file: ${options.input.path}`,
+            confirmationMessages: {
+                title: 'Update File',
+                message: new vscode.MarkdownString(`Update contents of ${options.input.path}?`)
+            }
+        };
+    }
 }

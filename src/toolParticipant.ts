@@ -31,12 +31,12 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
         const [model] = await vscode.lm.selectChatModels({ vendor: 'copilot', family: 'claude-3.5-sonnet' });
 
         const tools = vscode.lm.tools.filter(tool => 
-            tool.name.startsWith('autopilot_') || 
+            tool.name.startsWith('cogent_') || 
             tool.name === 'multi-tool-use-parallel'
         );
 
         const options: vscode.LanguageModelChatRequestOptions = {
-            justification: 'To make a request to Autopilot',
+            justification: 'To make a request to Cogent',
         };
 
         const result = await renderPrompt(
@@ -82,10 +82,10 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                     stream.markdown(part.value);
                     responseStr += part.value;
                 } else if (part instanceof vscode.LanguageModelToolCallPart) {
-                    if (part.name === 'autopilot_updateFile') {
+                    if (part.name === 'cogent_updateFile') {
                         hasFileUpdateCall = true;
                     }
-                    if (part.name === 'autopilot_readFile') {
+                    if (part.name === 'cogent_readFile') {
                         const input = part.input as ReadFileToolInput;
                         stream.markdown(`\n\nReading files: ${JSON.stringify(input.paths)}`);
                     }
@@ -125,7 +125,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
 
         if (hasFileUpdateCall) {
             stream.button({
-                command: 'autopilot.applyChanges',
+                command: 'cogent.applyChanges',
                 title: vscode.l10n.t('Apply All Changes')
             });
         }
@@ -140,11 +140,11 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
         };
     };
 
-    const toolUser = vscode.chat.createChatParticipant('autopilot.assistant', handler);
+    const toolUser = vscode.chat.createChatParticipant('cogent.assistant', handler);
     toolUser.iconPath = new vscode.ThemeIcon('tools');
     
     // Register the apply changes command
-    const applyChangesCommand = vscode.commands.registerCommand('autopilot.applyChanges', async () => {
+    const applyChangesCommand = vscode.commands.registerCommand('cogent.applyChanges', async () => {
         await vscode.workspace.saveAll();
         vscode.window.showInformationMessage('All changes have been saved');
     });

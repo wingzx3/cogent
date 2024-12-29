@@ -1,10 +1,10 @@
-# 🚀 Autopilot: Your Agentic AI-Powered Coding Companion
+# 🚀 Cogent: Your Agentic AI-Powered Coding Companion
 
 > "Because rubber duck debugging is better with a duck that talks back!" 
 
-![Autopilot Demo](assets/autopilot.gif)
+![Cogent Demo](assets/cogent.gif)
 
-Autopilot is an agentic Github Copilot VSCode chat extension that transforms your coding environment into an autonomous development powerhouse. Think of it as having a brilliant (and slightly nerdy) AI agent who not only understands your code but can independently take actions while keeping you in control. It's your witty companion that makes coding feel like pair programming with a super-smart friend who never needs coffee breaks!
+Cogent is an agentic Github Copilot VSCode chat extension that transforms your coding environment into an autonomous development powerhouse. Think of it as having a brilliant (and slightly nerdy) AI agent who not only understands your code but can independently take actions while keeping you in control. It's your witty companion that makes coding feel like pair programming with a super-smart friend who never needs coffee breaks!
 
 ## 🎯 Prerequisites
 
@@ -41,7 +41,6 @@ Before we embark on this magical journey, make sure you have:
 4. Press F5 in VS Code to start debugging
    > This will open a new VS Code window with the extension loaded
 
-
 ### Distribution
 
 Want to package the extension for distribution? Easy peasy:
@@ -60,25 +59,25 @@ Want to package the extension for distribution? Easy peasy:
 
 ### Workspace Awareness
 
-Autopilot can be as nosy or respectful as you want with your workspace:
+Cogent can be as nosy or respectful as you want with your workspace:
 
 ```json
 {
-    "autopilot.use_full_workspace": true  // Default: false
+    "cogent.use_full_workspace": true  // Default: false
 }
 ```
 
-- When `true`: Autopilot loads your entire workspace upfront. Respects your .gitignore file
+- When `true`: Cogent loads your entire workspace upfront. Respects your .gitignore file
 - When `false`: Reads files on-demand
 
-> 💡 Tip: Disable for large workspaces unless you want Autopilot to have a coffee break while loading!
+> 💡 Tip: Disable for large workspaces unless you want Cogent to have a coffee break while loading!
 
 ### Custom Rules
 
-Want Autopilot to follow your house rules? Create a `.autopilotrules` file in your workspace root:
+Want Cogent to follow your house rules? Create a `.cogentrules` file in your workspace root:
 
 ```plaintext
-# Example .autopilotrules
+# Example .cogentrules
 1. Always use TypeScript strict mode
 2. Follow Angular style guide
 3. No console.log(), use proper logging service
@@ -89,35 +88,35 @@ Think of it as leaving a note for your AI roommate about how to keep the code cl
 ## 🎮 Usage
 
 1. Open GitHub Copilot Chat in VS Code
-2. Type `@Autopilot` followed by your request
+2. Type `@Cogent` followed by your request
 3. Watch your agentic buddy spring into action!
 
-Autopilot works autonomously but always asks for your approval when:
+Cogent works autonomously but always asks for your approval when:
 - Creating or modifying files in your workspace
 - Running terminal commands
 - Making significant project changes
 
-This ensures you stay in control while letting Autopilot handle the heavy lifting!
+This ensures you stay in control while letting Cogent handle the heavy lifting!
 
 ## 💬 Example Conversations
 
 ```
-You: "@Autopilot Can you help me refactor this function?"
-Autopilot: "I'll analyze your code and suggest some improvements. Here's my plan..."
+You: "@Cogent Can you help me refactor this function?"
+Cogent: "I'll analyze your code and suggest some improvements. Here's my plan..."
 ```
 
 ```
-You: "@Autopilot Create a new React component for user authentication"
-Autopilot: "I'll help you create a secure authentication component. First, let me outline the structure..."
+You: "@Cogent Create a new React component for user authentication"
+Cogent: "I'll help you create a secure authentication component. First, let me outline the structure..."
 ```
 
 ## 🎭 Behind the Scenes
 
-Autopilot is powered by the GitHub Copilot and mighty Claude-3.5-Sonnet model. It's like having a tiny developer living in your VS Code. Don't worry, we feed them virtual cookies! 🍪
+Cogent is powered by the GitHub Copilot and mighty Claude-3.5-Sonnet model. It's like having a tiny developer living in your VS Code. Don't worry, we feed them virtual cookies! 🍪
 
 ## 🤝 Contributing
 
-Found a bug? Want to make Autopilot even more awesome? We love contributions! Just:
+Found a bug? Want to make Cogent even more awesome? We love contributions! Just:
 
 1. Fork it (like a pro)
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)

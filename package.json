@@ -1,7 +1,7 @@
 {
-    "name": "autopilot",
-    "displayName": "Copilot Agent",
-    "description": "Autopilot is a Copilot extension that gives it agenting capabilities like executing commands, editing and reading files, and more.",
+    "name": "cogent",
+    "displayName": "Cogent",
+    "description": "Cogent is a Copilot extension that gives it agenting capabilities like executing commands, editing and reading files, and more.",
     "version": "0.0.1",
     "engines": {
         "vscode": "^1.95.0"
@@ -10,7 +10,7 @@
         "Other",
         "AI"
     ],
-    "icon": "assets/Autopilot.jpeg",
+    "icon": "assets/Cogent.jpeg",
     "license": "MIT",
     "publisher": "kturung",
     "repository": {
@@ -21,9 +21,9 @@
     "main": "./out/extension.js",
     "contributes": {
         "configuration": {
-            "title": "Autopilot",
+            "title": "Cogent",
             "properties": {
-                "autopilot.use_full_workspace": {
+                "cogent.use_full_workspace": {
                     "type": "boolean",
                     "default": false,
                     "description": "Include full workspace content in the initial prompt. If disabled, files will be read on demand.\n\n Note: Not recommended for large workspaces."
@@ -32,15 +32,15 @@
         },
         "chatParticipants": [
       {
-        "id": "autopilot.assistant",
-        "name": "Autopilot",
+        "id": "cogent.assistant",
+        "name": "cogent",
         "description": "AI-powered development assistant",
         "isSticky": true
       }
     ],
         "languageModelTools": [
             {
-                "name": "autopilot_writeFile",
+                "name": "cogent_writeFile",
                 "tags": ["files", "create"],
                 "displayName": "Create New File",
                 "modelDescription": "Create a new file in the workspace with specified content",
@@ -60,7 +60,7 @@
                 }
             },
             {
-                "name": "autopilot_updateFile",
+                "name": "cogent_updateFile",
                 "tags": ["files", "update"],
                 "displayName": "Update File",
                 "modelDescription": "Update an existing file in the workspace with new content",
@@ -80,7 +80,7 @@
                 }
             },
             {
-                "name": "autopilot_runCommand",
+                "name": "cogent_runCommand",
                 "tags": ["terminal", "command"],
                 "displayName": "Run Command",
                 "modelDescription": "Execute a command in the VS Code terminal",
@@ -96,7 +96,7 @@
                 }
             },
             {
-                "name": "autopilot_readFile",
+                "name": "cogent_readFile",
                 "tags": ["files", "read"],
                 "displayName": "Read File",
                 "modelDescription": "Read the contents of multiple files in the workspace",
