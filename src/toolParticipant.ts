@@ -141,7 +141,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
     };
 
     const toolUser = vscode.chat.createChatParticipant('cogent.assistant', handler);
-    toolUser.iconPath = new vscode.ThemeIcon('tools');
+    toolUser.iconPath = vscode.Uri.joinPath(context.extensionUri, 'assets/cogent.jpeg');
     
     // Register the apply changes command
     const applyChangesCommand = vscode.commands.registerCommand('cogent.applyChanges', async () => {
