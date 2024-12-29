@@ -68,8 +68,8 @@ Autopilot can be as nosy or respectful as you want with your workspace:
 }
 ```
 
-- When `true`: Autopilot loads your entire workspace upfront (like that friend who reads your entire bookshelf when visiting)
-- When `false`: Reads files on-demand (like a polite guest who only opens doors when needed)
+- When `true`: Autopilot loads your entire workspace upfront. Respects your .gitignore file
+- When `false`: Reads files on-demand
 
 > 💡 Tip: Disable for large workspaces unless you want Autopilot to have a coffee break while loading!
 

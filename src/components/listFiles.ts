@@ -10,6 +10,7 @@ const defaultIgnored = [
     'bin',
     'lib',
     '.next',
+    'public',
     
     // Dependencies
     'node_modules',
@@ -59,6 +60,7 @@ const defaultIgnored = [
     'yarn-error.log*',
 
     // Images and media
+    'assets',
     '*.jpg',
     '*.jpeg',
     '*.png',
