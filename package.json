@@ -1,6 +1,6 @@
 {
     "name": "autopilot",
-    "displayName": "Copilot Agent Mode",
+    "displayName": "Copilot Agent",
     "description": "Autopilot is a Copilot extension that gives it agenting capabilities like executing commands, editing and reading files, and more.",
     "version": "0.0.1",
     "engines": {
@@ -11,6 +11,12 @@
         "AI"
     ],
     "icon": "assets/Autopilot.jpeg",
+    "license": "MIT",
+    "publisher": "kturung",
+    "repository": {
+		"type": "git",
+		"url": "https://github.com/kturung/copilot-autopilot"
+	},
     "activationEvents": [],
     "main": "./out/extension.js",
     "contributes": {
