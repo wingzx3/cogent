@@ -23,6 +23,17 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
     private static terminal: vscode.Terminal | undefined;
     private static nodePty = loadNodePty();
 
+    private filterPowerShellHeader(text: string): string {
+        if (os.platform() === 'win32') {
+            const lines = text.split('\n');
+            return lines
+                .filter(line => !line.startsWith('Copyright (C) Microsoft Corporation'))
+                .filter(line => !line.startsWith('Install the latest PowerShell'))
+                .join('\n');
+        }
+        return text;
+    }
+
     async invoke(
         options: vscode.LanguageModelToolInvocationOptions<ICommandParams>,
         token: vscode.CancellationToken
@@ -41,6 +52,7 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             let output = '';
             let writeEmitter = new vscode.EventEmitter<string>();
 
+
             const ptyProcess = CommandRunTool.nodePty.spawn(shell, [], {
                 name: 'xterm-color',
                 cols: 80,
@@ -50,7 +62,8 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
             });
 
             ptyProcess.onData((data: string) => {
-                output += stripAnsi(data);
+                const filteredData = stripAnsi(this.filterPowerShellHeader(data));
+                output += filteredData;
                 writeEmitter.fire(data);
             });
 
