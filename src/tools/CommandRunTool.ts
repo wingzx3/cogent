@@ -39,7 +39,9 @@ export class CommandRunTool implements vscode.LanguageModelTool<ICommandParams> 
         token: vscode.CancellationToken
     ): Promise<vscode.LanguageModelToolResult> {
         const stripAnsi = (str: string) => {
-            return str.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+            return str
+                .replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '')
+                .replace(/\u001b\].*?\u0007/g, ''); // Remove PowerShell OSC sequences
         };
         return new Promise((resolve, reject) => {
             if (!CommandRunTool.nodePty) {
