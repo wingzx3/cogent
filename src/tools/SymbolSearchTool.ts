@@ -23,12 +23,16 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
 
         if (symbolInfos) {
             for (const symbolInfo of symbolInfos) {
-                const document = await vscode.workspace.openTextDocument(symbolInfo.location.uri);
-                const symbolRange = symbolInfo.location.range;
-                const symbolText = document.getText(symbolRange);
-                const startLine = symbolRange.start.line + 1;
+                if (symbolInfo.name === symbol) {
+                    const document = await vscode.workspace.openTextDocument(symbolInfo.location.uri);
+                    const symbolRange = symbolInfo.location.range;
+                    const symbolText = document.getText(symbolRange);
+                    const startLine = symbolRange.start.line + 1;
 
-                results.push(`File: ${symbolInfo.location.uri.fsPath}\nLine ${startLine}:\n${symbolText}`);
+                    console.log(`Found symbol: ${symbol} in file: ${symbolInfo.location.uri.fsPath} at line: ${startLine}`);
+
+                    results.push(`File: ${symbolInfo.location.uri.fsPath}\nLine ${startLine}:\n${symbolText}`);
+                }
             }
         }
 
