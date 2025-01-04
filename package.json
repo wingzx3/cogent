@@ -114,6 +114,22 @@
                     },
                     "required": ["paths"]
                 }
+            },
+            {
+                "name": "cogent_searchSymbol",
+                "tags": ["files", "search"],
+                "displayName": "Search Symbol",
+                "modelDescription": "Search for symbols in the code base and return relevant code snippets with line numbers",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "symbol": {
+                            "type": "string",
+                            "description": "Symbol to search for"
+                        }
+                    },
+                    "required": ["symbol"]
+                }
             }
         ]
     },
