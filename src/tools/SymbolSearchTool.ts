@@ -19,12 +19,12 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
 
     private async searchSymbolInWorkspace(symbol: string): Promise<string[]> {
         const results: string[] = [];
-        const symbolInfos = await vscode.commands.executeCommand<vscode.DocumentSymbol[]>('vscode.executeWorkspaceSymbolProvider', symbol);
+        const symbolInfos = await vscode.commands.executeCommand<vscode.SymbolInformation[]>('vscode.executeWorkspaceSymbolProvider', symbol);
 
         if (symbolInfos) {
             for (const symbolInfo of symbolInfos) {
                 const document = await vscode.workspace.openTextDocument(symbolInfo.location.uri);
-                const symbolRange = symbolInfo.range;
+                const symbolRange = symbolInfo.location.range;
                 const symbolText = document.getText(symbolRange);
                 const startLine = symbolRange.start.line + 1;
 
