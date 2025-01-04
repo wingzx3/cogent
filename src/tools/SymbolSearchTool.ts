@@ -29,6 +29,8 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
                     const symbolText = document.getText(symbolRange);
                     const startLine = symbolRange.start.line + 1;
 
+                    console.log(`Found symbol: ${symbol} in file: ${symbolInfo.location.uri.fsPath} at line: ${startLine}`);
+
                     results.push(`File: ${symbolInfo.location.uri.fsPath}\nLine ${startLine}:\n${symbolText}`);
                 }
             }
