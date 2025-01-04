@@ -24,6 +24,7 @@ Before we embark on this magical journey, make sure you have:
 - 🔒 **Safe Operations** - Asks for your approval before making changes or running commands
 - 📚 **Workspace Awareness** - Can load your entire workspace for better context (configurable)
 - 📜 **Custom Rules** - Teach your AI companion your project's special needs
+- 🔍 **Symbol Search** - Find symbols in the code base and return relevant code snippets with line numbers
 
 ## 🚀 Installation
 
@@ -108,6 +109,11 @@ Cogent: "I'll analyze your code and suggest some improvements. Here's my plan...
 ```
 You: "@Cogent Create a new React component for user authentication"
 Cogent: "I'll help you create a secure authentication component. First, let me outline the structure..."
+```
+
+```
+You: "@Cogent Search for the symbol 'myFunction' in the code base"
+Cogent: "I'll search for the symbol 'myFunction' and return relevant code snippets with line numbers. Here's what I found..."
 ```
 
 ## 🎭 Behind the Scenes
