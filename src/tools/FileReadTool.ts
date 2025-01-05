@@ -20,11 +20,11 @@ export class FileReadTool implements vscode.LanguageModelTool<IFileOperationPara
             }
 
             const filePaths = options.input.paths || (options.input.path ? [options.input.path] : []);
-            
+
             const results = await Promise.all(filePaths.map(async (filePath) => {
-                const fullPath = path.join(workspacePath, filePath);
+                //const fullPath = path.join(workspacePath, filePath);
                 try {
-                    const content = await fs.readFile(fullPath, 'utf-8');
+                    const content = await fs.readFile(filePath, 'utf-8');
                     return [
                         '=' .repeat(80),
                         `📝 File: ${filePath}`,
