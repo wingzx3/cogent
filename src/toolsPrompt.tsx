@@ -140,10 +140,12 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
    - Avoid running dangerous commands
    - Run commands according to User's OS Level and Shell Type
    - Commands that create a template or scaffold a project should use the current working directory, avoid creating sub folder projects.${customInstructionsSection}
+
 4. cogent_searchSymbol
    - Use this tool to search for symbols in the code base
    - Return the whole function, class, or method containing the symbol
    - Include the starting line number at the beginning of the snippet
+
 5. cogent_searchFile
    - Use this tool to search for files by partial filename matching
    - Return the relevant file paths
