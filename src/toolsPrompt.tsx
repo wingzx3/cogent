@@ -126,10 +126,8 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 - Ask for clarification if requirements are unclear${additionalInstruction}
 
 ## Tool Use Instructions
-1. cogent_updateFile
-   - MUST provide complete file content
-   - No partial updates or placeholder comments
-   - Include ALL existing code when updating
+1. cogent_patchFile
+   - MUST provide in patch format.
 
 2. cogent_writeFile
    - MUST provide complete new file content

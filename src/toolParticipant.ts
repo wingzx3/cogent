@@ -82,7 +82,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                     stream.markdown(part.value);
                     responseStr += part.value;
                 } else if (part instanceof vscode.LanguageModelToolCallPart) {
-                    if (part.name === 'cogent_updateFile') {
+                    if (part.name === 'cogent_patchFile') {
                         hasFileUpdateCall = true;
                     }
                     if (part.name === 'cogent_readFile') {

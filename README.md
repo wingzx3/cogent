@@ -122,6 +122,22 @@ You: "@Cogent Search for files with the name 'utils'"
 Cogent: "I'll search for files with the name 'utils' and return relevant file paths. Here's what I found..."
 ```
 
+## 🛠️ Patch Update Example
+
+Cogent now supports patch format updates for files. Here's how you can use the `cogent_patchFile` tool with patch format updates:
+
+```json
+{
+    "name": "cogent_patchFile",
+    "input": {
+        "path": "src/exampleFile.ts",
+        "patch": "diff --git a/src/exampleFile.ts b/src/exampleFile.ts\nindex 83db48f..bf269f4 100644\n--- a/src/exampleFile.ts\n+++ b/src/exampleFile.ts\n@@ -1,6 +1,6 @@\n export function example() {\n-    console.log('Old content');\n+    console.log('New content');\n }\n"
+    }
+}
+```
+
+This will apply the specified patch to `src/exampleFile.ts`, updating only the lines that have changed.
+
 ## 🎭 Behind the Scenes
 
 Cogent is powered by the GitHub Copilot and mighty Claude-3.5-Sonnet model. It's like having a tiny developer living in your VS Code. Don't worry, we feed them virtual cookies! 🍪

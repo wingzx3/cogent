@@ -65,10 +65,10 @@
                 }
             },
             {
-                "name": "cogent_updateFile",
+                "name": "cogent_patchFile",
                 "tags": ["files", "update"],
                 "displayName": "Update File",
-                "modelDescription": "Update an existing file in the workspace with new content",
+                "modelDescription": "Update an existing file in the workspace using patch format",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -76,12 +76,12 @@
                             "type": "string",
                             "description": "Relative path to the file"
                         },
-                        "content": {
+                        "patch": {
                             "type": "string",
-                            "description": "New content for the file"
+                            "description": "Patch content for the file"
                         }
                     },
-                    "required": ["path", "content"]
+                    "required": ["path", "patch"]
                 }
             },
             {

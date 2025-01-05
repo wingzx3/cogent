@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { applyPatch } from 'diff';
 
 export class DiffView {
     private static readonly scheme = 'cogent-diff';
@@ -80,6 +81,19 @@ export class DiffView {
         
         edit.replace(this.originalUri, fullRange, content);
         await vscode.workspace.applyEdit(edit);
+    }
+
+    async applyPatch(patch: string) {
+        if (!this.document) return;
+
+        const originalContent = this.document.getText();
+        const patchedContent = applyPatch(originalContent, patch);
+
+        if (patchedContent.length === 0) {
+            throw new Error('Failed to apply patch');
+        }
+
+        await this.update(patchedContent, 0);
     }
 
     async close() {
