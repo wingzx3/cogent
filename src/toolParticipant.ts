@@ -89,6 +89,14 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                         const input = part.input as ReadFileToolInput;
                         stream.markdown(`\n\nReading files: ${JSON.stringify(input.paths)}`);
                     }
+                    if (part.name === 'cogent_searchSymbol') {
+                        const input = part.input as { symbol: string };
+                        stream.markdown(`\n\nSearching for symbol: ${input.symbol}`);
+                    }
+                    if (part.name === 'cogent_searchFile') {
+                        const input = part.input as { filename: string };
+                        stream.markdown(`\n\nSearching for file: ${input.filename}`);
+                    }
                     toolCalls.push(part);
                 }
             }

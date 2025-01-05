@@ -24,12 +24,12 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
             if (!options.input.path) {
                 throw new Error('File path is required');
             }
-            const filePath = path.join(workspacePath, options.input.path);
+            const filePath = options.input.path;
             const originalContent = await fs.readFile(filePath, 'utf-8');
-            
+
             this.diffView = new DiffView(filePath, originalContent);
             await this.diffView.show();
-            
+
             if (options.input.content) {
                 const lines = options.input.content.split('\n');
                 for (let i = 0; i < lines.length; i++) {

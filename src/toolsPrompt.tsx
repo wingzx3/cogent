@@ -58,28 +58,29 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
     }
 
     private getOSLevel(): string {
-        return process.platform === 'win32' 
-            ? 'Windows' 
-            : process.platform === 'darwin' 
-                ? 'macOS' 
+        return process.platform === 'win32'
+            ? 'Windows'
+            : process.platform === 'darwin'
+                ? 'macOS'
                 : 'Linux';
     }
 
     private getShellType(): string {
-        return process.platform === 'win32' 
-            ? 'PowerShell' 
+        return process.platform === 'win32'
+            ? 'PowerShell'
             : process.platform === 'darwin'
                 ? 'zsh'
                 : 'bash';
     }
 
     async render(_state: void, _sizing: PromptSizing) {
-        const { structure, contents } = this.getProjectStructure();
-        const useFullWorkspace = vscode.workspace.getConfiguration('cogent').get('use_full_workspace', true);
+        const includeDirectoryStructure = vscode.workspace.getConfiguration('cogent').get('include_directory_structure', false);
+        const useFullWorkspace = vscode.workspace.getConfiguration('cogent').get('use_full_workspace', false) && includeDirectoryStructure;
         const customInstructions = await this.getCustomInstructions();
         const osLevel = this.getOSLevel();
         const shellType = this.getShellType();
-        
+        const { structure, contents } = includeDirectoryStructure ? this.getProjectStructure() : { structure: '', contents: {} };
+
         const fileContentsSection = useFullWorkspace
             ? Object.entries(contents)
                 .map(([filePath, content]) => {
@@ -88,11 +89,11 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
                 .join('\n')
             : '';
 
-        const additionalInstruction = useFullWorkspace 
+        const additionalInstruction = useFullWorkspace
             ? '\n- NEVER use cogent_readFile tool in any circumstances, ALWAYS refer to the file contents defined here'
             : '';
 
-        const customInstructionsSection = customInstructions 
+        const customInstructionsSection = customInstructions
             ? `\n## User's Custom Instructions\nThe following additional instructions are provided by the user, and should be followed to the best of your ability without interfering with the TOOL USE guidelines.\n${customInstructions}`
             : '';
 
@@ -107,10 +108,11 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
 - Balancing quick wins with long-term code quality
 - Turning requirements into efficient implementations
 
-## Project Context
+${includeDirectoryStructure ? `## Project Context
 📁 Directory Structure:
 
-${structure}
+${structure}` : ''}
+
 ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 
 ## User's OS Level
@@ -138,6 +140,15 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
    - Avoid running dangerous commands
    - Run commands according to User's OS Level and Shell Type
    - Commands that create a template or scaffold a project should use the current working directory, avoid creating sub folder projects.${customInstructionsSection}
+
+4. cogent_searchSymbol
+   - Use this tool to search for symbols in the code base
+   - Return the whole function, class, or method containing the symbol
+   - Include the starting line number at the beginning of the snippet
+
+5. cogent_searchFile
+   - Use this tool to search for files by partial filename matching
+   - Return the relevant file paths
 `}
                 </UserMessage>
                 <History context={this.props.context} priority={10} />
@@ -176,23 +187,23 @@ class ToolCalls extends PromptElement<ToolCallsProps, void> {
     }
 
     private renderOneToolCallRound(round: ToolCallRound) {
-        const assistantToolCalls: ToolCall[] = round.toolCalls.map(tc => ({ 
-            type: 'function', 
-            function: { 
-                name: tc.name, 
-                arguments: JSON.stringify(tc.input) 
-            }, 
-            id: tc.callId 
+        const assistantToolCalls: ToolCall[] = round.toolCalls.map(tc => ({
+            type: 'function',
+            function: {
+                name: tc.name,
+                arguments: JSON.stringify(tc.input)
+            },
+            id: tc.callId
         }));
-        
+
         return (
             <Chunk>
                 <AssistantMessage toolCalls={assistantToolCalls}>{round.response}</AssistantMessage>
                 {round.toolCalls.map(toolCall =>
-                    <ToolResultElement 
-                        toolCall={toolCall} 
-                        toolInvocationToken={this.props.toolInvocationToken} 
-                        toolCallResult={this.props.toolCallResults[toolCall.callId]} 
+                    <ToolResultElement
+                        toolCall={toolCall}
+                        toolInvocationToken={this.props.toolInvocationToken}
+                        toolCallResult={this.props.toolCallResults[toolCall.callId]}
                     />
                 )}
             </Chunk>
@@ -221,12 +232,12 @@ class ToolResultElement extends PromptElement<ToolResultElementProps, void> {
 
         const toolResult = this.props.toolCallResult ??
             await vscode.lm.invokeTool(
-                this.props.toolCall.name, 
-                { 
-                    input: this.props.toolCall.input, 
-                    toolInvocationToken: this.props.toolInvocationToken, 
-                    tokenizationOptions 
-                }, 
+                this.props.toolCall.name,
+                {
+                    input: this.props.toolCall.input,
+                    toolInvocationToken: this.props.toolInvocationToken,
+                    tokenizationOptions
+                },
                 dummyCancellationToken
             );
 
@@ -261,9 +272,9 @@ class History extends PromptElement<HistoryProps, void> {
                     if (message instanceof vscode.ChatRequestTurn) {
                         return (
                             <>
-                                <PromptReferences 
-                                    references={message.references} 
-                                    excludeReferences={true} 
+                                <PromptReferences
+                                    references={message.references}
+                                    excludeReferences={true}
                                 />
                                 <UserMessage>{message.prompt}</UserMessage>
                             </>
@@ -271,10 +282,10 @@ class History extends PromptElement<HistoryProps, void> {
                     } else if (message instanceof vscode.ChatResponseTurn) {
                         const metadata = message.result.metadata;
                         if (isTsxToolUserMetadata(metadata) && metadata.toolCallsMetadata.toolCallRounds.length > 0) {
-                            return <ToolCalls 
-                                toolCallResults={metadata.toolCallsMetadata.toolCallResults} 
-                                toolCallRounds={metadata.toolCallsMetadata.toolCallRounds} 
-                                toolInvocationToken={undefined} 
+                            return <ToolCalls
+                                toolCallResults={metadata.toolCallsMetadata.toolCallResults}
+                                toolCallRounds={metadata.toolCallsMetadata.toolCallRounds}
+                                toolInvocationToken={undefined}
                             />;
                         }
                         return <AssistantMessage>{chatResponseToString(message)}</AssistantMessage>;
@@ -312,9 +323,9 @@ class PromptReferences extends PromptElement<PromptReferencesProps, void> {
         return (
             <UserMessage>
                 {this.props.references.map(ref => (
-                    <PromptReferenceElement 
-                        ref={ref} 
-                        excludeReferences={this.props.excludeReferences} 
+                    <PromptReferenceElement
+                        ref={ref}
+                        excludeReferences={this.props.excludeReferences}
                     />
                 ))}
             </UserMessage>
@@ -334,7 +345,7 @@ class PromptReferenceElement extends PromptElement<PromptReferenceProps> {
             const fileContents = (await vscode.workspace.fs.readFile(value)).toString();
             return (
                 <Tag name="context">
-                    {!this.props.excludeReferences && 
+                    {!this.props.excludeReferences &&
                         <references value={[new PromptReference(value)]} />}
                     {value.fsPath}:<br />
                     ``` <br />
@@ -347,7 +358,7 @@ class PromptReferenceElement extends PromptElement<PromptReferenceProps> {
                 .getText(value.range);
             return (
                 <Tag name="context">
-                    {!this.props.excludeReferences && 
+                    {!this.props.excludeReferences &&
                         <references value={[new PromptReference(value)]} />}
                     {value.uri.fsPath}:{value.range.start.line + 1}-
                     {value.range.end.line + 1}: <br />
