@@ -75,7 +75,8 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
 
     async render(_state: void, _sizing: PromptSizing) {
         const { structure, contents } = this.getProjectStructure();
-        const useFullWorkspace = vscode.workspace.getConfiguration('cogent').get('use_full_workspace', true);
+        const useFullWorkspace = vscode.workspace.getConfiguration('cogent').get('use_full_workspace', false);
+        const includeDirectoryStructure = vscode.workspace.getConfiguration('cogent').get('include_directory_structure', false);
         const customInstructions = await this.getCustomInstructions();
         const osLevel = this.getOSLevel();
         const shellType = this.getShellType();
@@ -107,10 +108,11 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
 - Balancing quick wins with long-term code quality
 - Turning requirements into efficient implementations
 
-## Project Context
+${includeDirectoryStructure ? `## Project Context
 📁 Directory Structure:
 
-${structure}
+${structure}` : ''}
+
 ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 
 ## User's OS Level
@@ -142,6 +144,9 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
    - Use this tool to search for symbols in the code base
    - Return the whole function, class, or method containing the symbol
    - Include the starting line number at the beginning of the snippet
+5. cogent_searchFile
+   - Use this tool to search for files by partial filename matching
+   - Return the relevant file paths
 `}
                 </UserMessage>
                 <History context={this.props.context} priority={10} />

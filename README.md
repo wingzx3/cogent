@@ -25,6 +25,7 @@ Before we embark on this magical journey, make sure you have:
 - 📚 **Workspace Awareness** - Can load your entire workspace for better context (configurable)
 - 📜 **Custom Rules** - Teach your AI companion your project's special needs
 - 🔍 **Symbol Search** - Find symbols in the code base and return relevant code snippets with line numbers
+- 🔍 **File Search** - Search for files by partial filename matching and return relevant file paths
 
 ## 🚀 Installation
 
@@ -114,6 +115,11 @@ Cogent: "I'll help you create a secure authentication component. First, let me o
 ```
 You: "@Cogent Search for the symbol 'myFunction' in the code base"
 Cogent: "I'll search for the symbol 'myFunction' and return relevant code snippets with line numbers. Here's what I found..."
+```
+
+```
+You: "@Cogent Search for files with the name 'utils'"
+Cogent: "I'll search for files with the name 'utils' and return relevant file paths. Here's what I found..."
 ```
 
 ## 🎭 Behind the Scenes

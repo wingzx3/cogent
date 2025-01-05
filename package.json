@@ -27,6 +27,11 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Include full workspace content in the initial prompt. If disabled, files will be read on demand.\n\n Note: Not recommended for large workspaces."
+                },
+                "cogent.include_directory_structure": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Include directory structure in the prompt. If disabled, directory structure will not be included."
                 }
             }
         },
@@ -129,6 +134,22 @@
                         }
                     },
                     "required": ["symbol"]
+                }
+            },
+            {
+                "name": "cogent_searchFile",
+                "tags": ["files", "search"],
+                "displayName": "Search File",
+                "modelDescription": "Search for files by partial filename matching and return relevant file paths",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "filename": {
+                            "type": "string",
+                            "description": "Filename to search for"
+                        }
+                    },
+                    "required": ["filename"]
                 }
             }
         ]
