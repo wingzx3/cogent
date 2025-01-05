@@ -12,6 +12,12 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
         const symbol = options.input.symbol;
         const results = await this.searchSymbolInWorkspace(symbol);
 
+        if (results.length === 0) {
+            return new vscode.LanguageModelToolResult([
+                new vscode.LanguageModelTextPart(`No symbols found for: ${symbol}`)
+            ]);
+        }
+
         return new vscode.LanguageModelToolResult([
             new vscode.LanguageModelTextPart(results.join('\n\n'))
         ]);
