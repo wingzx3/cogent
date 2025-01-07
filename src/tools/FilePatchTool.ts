@@ -2,14 +2,15 @@ import * as vscode from 'vscode';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { DiffView } from '../components/DiffView';
+import { applyPatch } from 'diff';
 
 interface IFileOperationParams {
     path?: string;
     paths?: string[];
-    content?: string;
+    patch?: string;
 }
 
-export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationParams> {
+export class FilePatchTool implements vscode.LanguageModelTool<IFileOperationParams> {
     private diffView?: DiffView;
 
     async invoke(
@@ -30,15 +31,9 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
             this.diffView = new DiffView(filePath, originalContent);
             await this.diffView.show();
 
-            if (options.input.content) {
-                const lines = options.input.content.split('\n');
-                for (let i = 0; i < lines.length; i++) {
-                    await this.diffView.update(
-                        lines.slice(0, i + 1).join('\n'),
-                        i
-                    );
-                    await new Promise(resolve => setTimeout(resolve, 50));
-                }
+            if (options.input.patch) {
+                const updatedContent = this.applyPatch(originalContent, options.input.patch);
+                await this.diffView.update(updatedContent, 0);
             }
 
             return new vscode.LanguageModelToolResult([
@@ -65,5 +60,14 @@ export class FileUpdateTool implements vscode.LanguageModelTool<IFileOperationPa
                 message: new vscode.MarkdownString(`Update contents of ${options.input.path}?`)
             }
         };
+    }
+
+    private applyPatch(originalContent: string, patch: string): string {
+        console.log( `Applying patch:\n ${patch}` );
+        const patchResult = applyPatch(originalContent, patch);
+        if (patchResult === false) {
+            throw new Error('Failed to apply patch');
+        }
+        return patchResult;
     }
 }

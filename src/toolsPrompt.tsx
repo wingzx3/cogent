@@ -126,10 +126,31 @@ ${useFullWorkspace ? `\n📄 File Contents:\n${fileContentsSection}` : ''}
 - Ask for clarification if requirements are unclear${additionalInstruction}
 
 ## Tool Use Instructions
-1. cogent_updateFile
-   - MUST provide complete file content
-   - No partial updates or placeholder comments
-   - Include ALL existing code when updating
+1. cogent_patchFile
+* You must provide your output in a standard unified diff (patch) format.
+* Example Patch Format
+### Below is a minimal example showing how to change the text in a file.
+
+\`\`\`diff
+@@ -1,7 +1,6 @@
+-The Way that can be told of is not the eternal Way;
+-The name that can be named is not the eternal name.
+ The Nameless is the origin of Heaven and Earth;
+-The Named is the mother of all things.
++The named is the mother of all things.
++
+ Therefore let there always be non-being,
+   so we may see their subtlety,
+ And let there always be being,
+@@ -9,3 +8,6 @@
+ The two are the same,
+ But after they are produced,
+   they have different names.
++They both may be called deep and profound.
++Deeper and more profound,
++The door of all subtleties!
+\`\`\`
+When providing a patch for cogent_patchFile, follow this structure.
 
 2. cogent_writeFile
    - MUST provide complete new file content
