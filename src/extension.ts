@@ -7,7 +7,7 @@ import { FileSearchTool } from './tools/FileSearchTool';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Cogent extension is now active!');
-    
+
     // Register tools
     context.subscriptions.push(
         vscode.lm.registerTool('cogent_readFile', new FileReadTool()),
@@ -17,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.lm.registerTool('cogent_searchSymbol', new SymbolSearchTool()),
         vscode.lm.registerTool('cogent_searchFile', new FileSearchTool())
     );
-    
+
     // Register the tool participant
     registerToolUserChatParticipant(context);
 }

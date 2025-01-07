@@ -63,8 +63,9 @@ export class FilePatchTool implements vscode.LanguageModelTool<IFileOperationPar
     }
 
     private applyPatch(originalContent: string, patch: string): string {
+        console.log( `Applying patch:\n ${patch}` );
         const patchResult = applyPatch(originalContent, patch);
-        if (patchResult.length === 0) {
+        if (patchResult === false) {
             throw new Error('Failed to apply patch');
         }
         return patchResult;

@@ -16,7 +16,7 @@ export class DiffView {
     constructor(filePath: string, originalContent: string) {
         this.originalUri = vscode.Uri.file(filePath);
         this.modifiedUri = this.originalUri.with({ scheme: DiffView.scheme });
-        
+
         // Initialize static content provider if not exists
         if (!DiffView.contentProvider) {
             DiffView.contentProvider = {
@@ -30,7 +30,7 @@ export class DiffView {
                 DiffView.contentProvider
             );
         }
-        
+
         // Store the original content
         DiffView.content.set(this.modifiedUri.toString(), originalContent);
     }
@@ -39,7 +39,7 @@ export class DiffView {
         try {
             // Open the file first
             this.document = await vscode.workspace.openTextDocument(this.originalUri);
-            
+
             // Add save listener
             this.disposables.push(
                 vscode.workspace.onDidSaveTextDocument(async doc => {
@@ -54,7 +54,7 @@ export class DiffView {
                     }
                 })
             );
-            
+
             // Show diff editor
             await vscode.commands.executeCommand('vscode.diff',
                 this.modifiedUri,
@@ -78,7 +78,7 @@ export class DiffView {
             0, 0,
             this.document.lineCount, 0
         );
-        
+
         edit.replace(this.originalUri, fullRange, content);
         await vscode.workspace.applyEdit(edit);
     }
@@ -89,7 +89,7 @@ export class DiffView {
         const originalContent = this.document.getText();
         const patchedContent = applyPatch(originalContent, patch);
 
-        if (patchedContent.length === 0) {
+        if (patchedContent === false) {
             throw new Error('Failed to apply patch');
         }
 

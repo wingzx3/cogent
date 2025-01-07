@@ -14,9 +14,9 @@
     "license": "MIT",
     "publisher": "kturung",
     "repository": {
-		"type": "git",
-		"url": "https://github.com/kturung/cogent"
-	},
+        "type": "git",
+        "url": "https://github.com/kturung/cogent"
+    },
     "activationEvents": [],
     "main": "./out/extension.js",
     "contributes": {
@@ -36,17 +36,20 @@
             }
         },
         "chatParticipants": [
-      {
-        "id": "cogent.assistant",
-        "name": "cogent",
-        "description": "AI-powered development assistant",
-        "isSticky": true
-      }
-    ],
+            {
+                "id": "cogent.assistant",
+                "name": "cogent",
+                "description": "AI-powered development assistant",
+                "isSticky": true
+            }
+        ],
         "languageModelTools": [
             {
                 "name": "cogent_writeFile",
-                "tags": ["files", "create"],
+                "tags": [
+                    "files",
+                    "create"
+                ],
                 "displayName": "Create New File",
                 "modelDescription": "Create a new file in the workspace with specified content",
                 "inputSchema": {
@@ -61,14 +64,20 @@
                             "description": "The full text content to write into the file"
                         }
                     },
-                    "required": ["path", "content"]
+                    "required": [
+                        "path",
+                        "content"
+                    ]
                 }
             },
             {
                 "name": "cogent_patchFile",
-                "tags": ["files", "update"],
-                "displayName": "Update File",
-                "modelDescription": "Update an existing file in the workspace using patch format",
+                "tags": [
+                    "files",
+                    "patch"
+                ],
+                "displayName": "Patch File",
+                "modelDescription": "Patch an existing file in the workspace using standard unified diff (patch) format",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -78,15 +87,21 @@
                         },
                         "patch": {
                             "type": "string",
-                            "description": "Patch content for the file"
+                            "description": "Standard unified diff (patch)"
                         }
                     },
-                    "required": ["path", "patch"]
+                    "required": [
+                        "path",
+                        "patch"
+                    ]
                 }
             },
             {
                 "name": "cogent_runCommand",
-                "tags": ["terminal", "command"],
+                "tags": [
+                    "terminal",
+                    "command"
+                ],
                 "displayName": "Run Command",
                 "modelDescription": "Execute a command in the VS Code terminal",
                 "inputSchema": {
@@ -97,12 +112,17 @@
                             "description": "Command to execute"
                         }
                     },
-                    "required": ["command"]
+                    "required": [
+                        "command"
+                    ]
                 }
             },
             {
                 "name": "cogent_readFile",
-                "tags": ["files", "read"],
+                "tags": [
+                    "files",
+                    "read"
+                ],
                 "displayName": "Read File",
                 "modelDescription": "Read the contents of multiple files in the workspace",
                 "inputSchema": {
@@ -117,12 +137,17 @@
                             "description": "Array of file paths to read"
                         }
                     },
-                    "required": ["paths"]
+                    "required": [
+                        "paths"
+                    ]
                 }
             },
             {
                 "name": "cogent_searchSymbol",
-                "tags": ["files", "search"],
+                "tags": [
+                    "files",
+                    "search"
+                ],
                 "displayName": "Search Symbol",
                 "modelDescription": "Search for symbols in the code base and return relevant code snippets with line numbers",
                 "inputSchema": {
@@ -133,12 +158,17 @@
                             "description": "Symbol to search for"
                         }
                     },
-                    "required": ["symbol"]
+                    "required": [
+                        "symbol"
+                    ]
                 }
             },
             {
                 "name": "cogent_searchFile",
-                "tags": ["files", "search"],
+                "tags": [
+                    "files",
+                    "search"
+                ],
                 "displayName": "Search File",
                 "modelDescription": "Search for files by partial filename matching and return relevant file paths",
                 "inputSchema": {
@@ -149,7 +179,9 @@
                             "description": "Filename to search for"
                         }
                     },
-                    "required": ["filename"]
+                    "required": [
+                        "filename"
+                    ]
                 }
             }
         ]
@@ -166,14 +198,15 @@
         "@vscode/prompt-tsx": "^0.3.0-alpha.12"
     },
     "devDependencies": {
+        "@types/diff": "^6.0.0",
+        "@types/mocha": "^10.0.9",
         "@types/node": "^20.17.10",
         "@types/vscode": "^1.95.0",
-        "@types/mocha": "^10.0.9",
         "@typescript-eslint/eslint-plugin": "^8.10.0",
         "@typescript-eslint/parser": "^8.7.0",
-        "eslint": "^9.13.0",
-        "typescript": "^5.6.3",
         "@vscode/test-cli": "^0.0.10",
-        "@vscode/test-electron": "^2.4.1"
+        "@vscode/test-electron": "^2.4.1",
+        "eslint": "^9.13.0",
+        "typescript": "^5.6.3"
     }
 }
