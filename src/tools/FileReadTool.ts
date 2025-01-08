@@ -29,6 +29,7 @@ export class FileReadTool implements vscode.LanguageModelTool<IFileOperationPara
                 try {
                     const content = await fs.readFile(filePath, 'utf-8');
                     const lines = content.split('\n').slice(startLine, endLine + 1);
+                    console.log( `Reading file: ${filePath} from line ${startLine + 1} to ${endLine}\n${lines.join('\n')}`);
                     return [
                         '=' .repeat(80),
                         `📝 File: ${filePath}`,
