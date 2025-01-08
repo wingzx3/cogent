@@ -175,6 +175,10 @@ When providing a patch for cogent_patchFile, follow this structure.
    - Use this tool to read the contents of files
    - Specify start and end line numbers to read partial file content
    - Avoid reading too many lines.  Try to keep it to less then 100 lines.  Use cogent_searchSymbol to narrow down the lines to read.
+
+7. cogent_searchText
+   - Use this tool to search for exact text matches in workspace files
+   - Return the file paths and line numbers where the exact text matches are found
 `}
                 </UserMessage>
                 <History context={this.props.context} priority={10} />

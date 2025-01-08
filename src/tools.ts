@@ -4,5 +4,6 @@ import { FilePatchTool } from './tools/FilePatchTool';
 import { CommandRunTool } from './tools/CommandRunTool';
 import { SymbolSearchTool } from './tools/SymbolSearchTool';
 import { FileSearchTool } from './tools/FileSearchTool';
+import { TextSearchTool } from './tools/TextSearchTool';
 
-export { FileReadTool, FileWriteTool, FilePatchTool, CommandRunTool, SymbolSearchTool, FileSearchTool };
+export { FileReadTool, FileWriteTool, FilePatchTool, CommandRunTool, SymbolSearchTool, FileSearchTool, TextSearchTool };

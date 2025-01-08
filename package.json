@@ -191,6 +191,27 @@
                         "filename"
                     ]
                 }
+            },
+            {
+                "name": "cogent_searchText",
+                "tags": [
+                    "files",
+                    "search"
+                ],
+                "displayName": "Search Text",
+                "modelDescription": "Search for exact text matches in workspace files",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "text": {
+                            "type": "string",
+                            "description": "Text to search for"
+                        }
+                    },
+                    "required": [
+                        "text"
+                    ]
+                }
             }
         ]
     },
