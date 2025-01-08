@@ -14,7 +14,7 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
 
         if (results.length === 0) {
             return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(`No symbols found for: ${symbol}`)
+                new vscode.LanguageModelTextPart(`No references found for: ${symbol}`)
             ]);
         }
 
@@ -25,20 +25,18 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
 
     private async searchSymbolInWorkspace(symbol: string): Promise<string[]> {
         const results: string[] = [];
-        const symbolInfos = await vscode.commands.executeCommand<vscode.SymbolInformation[]>('vscode.executeWorkspaceSymbolProvider', symbol);
+        const symbolReferences = await vscode.commands.executeCommand<vscode.Location[]>('vscode.executeReferenceProvider', { includeDeclaration: false }, symbol);
 
-        if (symbolInfos) {
-            for (const symbolInfo of symbolInfos) {
-                if (symbolInfo.name === symbol) {
-                    const document = await vscode.workspace.openTextDocument(symbolInfo.location.uri);
-                    const symbolRange = symbolInfo.location.range;
-                    const symbolText = document.getText(symbolRange);
-                    const startLine = symbolRange.start.line + 1;
+        if (symbolReferences) {
+            for (const reference of symbolReferences) {
+                const document = await vscode.workspace.openTextDocument(reference.uri);
+                const referenceRange = reference.range;
+                const referenceText = document.getText(referenceRange);
+                const startLine = referenceRange.start.line + 1;
 
-                    console.log(`Found symbol: ${symbol} in file: ${symbolInfo.location.uri.fsPath} at line: ${startLine}`);
+                console.log(`Found reference: ${symbol} in file: ${reference.uri.fsPath} at line: ${startLine}`);
 
-                    results.push(`File: ${symbolInfo.location.uri.fsPath}\nLine ${startLine}:\n${symbolText}`);
-                }
+                results.push(`File: ${reference.uri.fsPath}\nLine ${startLine}:\n${referenceText}`);
             }
         }
 
