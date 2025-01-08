@@ -38,15 +38,27 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
 
                     console.log(`Found symbol: ${symbol} in file: ${symbolInfo.location.uri.fsPath} at line: ${startLine}`);
 
-                    results.push(`File: ${symbolInfo.location.uri.fsPath}\nLine ${startLine}:\n${symbolText}`);
+                    results.push(`File: ${symbolInfo.location.uri.fsPath}:${startLine}`);
 
-                    const references = await this.findReferences(symbolInfo.location);
+                    const exactPosition = this.findSymbolPositionInRange(symbolText, symbol, symbolRange.start);
+                    const references = await this.findReferences(new Location(symbolInfo.location.uri, exactPosition));
                     results.push(...references);
                 }
             }
         }
 
         return results;
+    }
+
+    private findSymbolPositionInRange(text: string, symbol: string, startPos: Position): Position {
+        const symbolIndex = text.indexOf(symbol);
+        if (symbolIndex === -1) {
+            return startPos;
+        }
+        return new Position(
+            startPos.line,
+            startPos.character + symbolIndex
+        );
     }
 
     private async findReferences(location: Location): Promise<string[]> {
@@ -57,12 +69,14 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
             for (const reference of references) {
                 const document = await vscode.workspace.openTextDocument(reference.uri);
                 const referenceRange = reference.range;
-                const referenceText = document.getText(referenceRange);
-                const startLine = referenceRange.start.line + 1;
+                let startLine = Math.max(referenceRange.start.line - 2, 0);
+                const endLine = Math.min(referenceRange.end.line + 2, document.lineCount - 1);
+                const referenceText = document.getText(new vscode.Range(startLine, 0, endLine, document.lineAt(endLine).text.length));
+                startLine++;
 
-                console.log(`Found reference in file: ${reference.uri.fsPath} at line: ${startLine}`);
+                console.log(`File: ${reference.uri.fsPath}:${startLine}\n${referenceText}`);
 
-                results.push(`Reference in file: ${reference.uri.fsPath}\nLine ${startLine}:\n${referenceText}`);
+                results.push(`File: ${reference.uri.fsPath}:${startLine}\n${referenceText}`);
             }
         }
 
