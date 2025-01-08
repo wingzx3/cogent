@@ -122,6 +122,11 @@ You: "@Cogent Search for files with the name 'utils'"
 Cogent: "I'll search for files with the name 'utils' and return relevant file paths. Here's what I found..."
 ```
 
+```
+You: "@Cogent Read the contents of 'src/exampleFile.ts' from line 10 to line 20"
+Cogent: "I'll read the contents of 'src/exampleFile.ts' from line 10 to line 20 and include the starting line number in the response. Here's what I found..."
+```
+
 ## 🛠️ Patch Update Example
 
 Cogent now supports patch format updates for files. Here's how you can use the `cogent_patchFile` tool with patch format updates:

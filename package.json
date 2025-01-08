@@ -135,6 +135,14 @@
                                 "description": "Relative path to the file"
                             },
                             "description": "Array of file paths to read"
+                        },
+                        "startLine": {
+                            "type": "number",
+                            "description": "The starting line number to read from"
+                        },
+                        "endLine": {
+                            "type": "number",
+                            "description": "The ending line number to read to"
                         }
                     },
                     "required": [
