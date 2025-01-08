@@ -6,6 +6,8 @@ interface IFileOperationParams {
     path?: string;
     paths?: string[];
     content?: string;
+    startLine?: number;
+    endLine?: number;
 }
 
 export class FileReadTool implements vscode.LanguageModelTool<IFileOperationParams> {
@@ -20,16 +22,20 @@ export class FileReadTool implements vscode.LanguageModelTool<IFileOperationPara
             }
 
             const filePaths = options.input.paths || (options.input.path ? [options.input.path] : []);
+            const startLine = (options.input.startLine ?? 1) - 1; // Ensure startLine indexes from 1
+            const endLine = options.input.endLine ?? Number.MAX_SAFE_INTEGER;
 
             const results = await Promise.all(filePaths.map(async (filePath) => {
-                //const fullPath = path.join(workspacePath, filePath);
                 try {
                     const content = await fs.readFile(filePath, 'utf-8');
+                    const lines = content.split('\n').slice(startLine, endLine + 1);
+                    console.log( `Reading file: ${filePath} from line ${startLine + 1} to ${endLine}\n${lines.join('\n')}`);
                     return [
                         '=' .repeat(80),
                         `📝 File: ${filePath}`,
+                        `Starting Line: ${startLine + 1}`,
                         '=' .repeat(80),
-                        content
+                        lines.join('\n')
                     ].join('\n');
                 } catch (err) {
                     return `Error reading ${filePath}: ${(err as Error)?.message}`;
