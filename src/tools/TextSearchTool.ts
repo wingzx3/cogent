@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs/promises';
 
 interface ITextSearchParams {
     text: string;
@@ -26,19 +25,17 @@ export class TextSearchTool implements vscode.LanguageModelTool<ITextSearchParam
 
     private async searchTextInWorkspace(text: string): Promise<string[]> {
         const results: string[] = [];
-        const files = await vscode.workspace.findFiles('**/*');
+        const query = new vscode.TextSearchQuery(text, { isCaseSensitive: true, isRegExp: false });
+        const options: vscode.TextSearchOptions = { maxResults: 1000 };
 
-        for (const file of files) {
-            const filePath = file.fsPath;
-            const content = await fs.readFile(filePath, 'utf-8');
-            const lines = content.split('\n');
-
-            lines.forEach((line, index) => {
-                if (line.includes(text)) {
-                    results.push(`File: ${filePath}:${index + 1}\n${line}`);
-                }
+        await vscode.workspace.findTextInFiles(query, options, result => {
+            const filePath = result.uri.fsPath;
+            result.ranges.forEach(range => {
+                const startLine = range.start.line + 1;
+                console.log(`Found match in file: ${filePath} at line: ${startLine}\n${result.preview.text}`);
+                results.push(`File: ${filePath}:${startLine}\n${result.preview.text}`);
             });
-        }
+        });
 
         return results;
     }
