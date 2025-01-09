@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs/promises';
-import * as path from 'path';
 
 interface ITextSearchParams {
     text: string;
@@ -27,46 +26,23 @@ export class TextSearchTool implements vscode.LanguageModelTool<ITextSearchParam
 
     private async searchTextInWorkspace(text: string): Promise<string[]> {
         const results: string[] = [];
-        const ignorePatterns = await this.getIgnorePatterns();
-        const files = await vscode.workspace.findFiles('**/*');
+        const includePatterns = vscode.workspace.getConfiguration('cogent').get('search_include_patterns', '**/*').split(',').map( pattern => pattern.charAt(0) != '/' ? '**/' + pattern.trim() : pattern.trim() );
+        const excludePatterns = vscode.workspace.getConfiguration('cogent').get('search_exclude_patterns', '').split(',').map( pattern => pattern.charAt(0) != '/' ? '**/' + pattern.trim() : pattern.trim() );
+        const files = await vscode.workspace.findFiles( '{'+includePatterns.join(',')+'}', excludePatterns.length > 0 ? '{'+excludePatterns.join(',')+'}' : null );
 
         for (const file of files) {
             const filePath = file.fsPath;
-            if (this.isIgnored(filePath, ignorePatterns)) {
-                continue;
-            }
             const content = await fs.readFile(filePath, 'utf-8');
             const lines = content.split('\n');
 
             lines.forEach((line, index) => {
                 if (line.includes(text)) {
                     results.push(`File: ${filePath}:${index + 1}\n${line}`);
+                    console.log(`Found text: ${text} in file: ${filePath} at line: ${index + 1}`);
                 }
             });
         }
 
         return results;
-    }
-
-    private async getIgnorePatterns(): Promise<string[]> {
-        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-        if (!workspaceFolder) {
-            return [];
-        }
-
-        const ignoreFilePath = path.join(workspaceFolder.uri.fsPath, '.cogentignore');
-        try {
-            const content = await fs.readFile(ignoreFilePath, 'utf-8');
-            return content.split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
-        } catch (error) {
-            return [];
-        }
-    }
-
-    private isIgnored(filePath: string, ignorePatterns: string[]): boolean {
-        return ignorePatterns.some(pattern => {
-            const regex = new RegExp(pattern.replace(/\*/g, '.*'));
-            return regex.test(filePath);
-        });
     }
 }
