@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 interface ITextSearchParams {
     text: string;
@@ -25,18 +27,46 @@ export class TextSearchTool implements vscode.LanguageModelTool<ITextSearchParam
 
     private async searchTextInWorkspace(text: string): Promise<string[]> {
         const results: string[] = [];
-        const query = new vscode.TextSearchQuery(text, { isCaseSensitive: true, isRegExp: false });
-        const options: vscode.TextSearchOptions = { maxResults: 1000 };
+        const ignorePatterns = await this.getIgnorePatterns();
+        const files = await vscode.workspace.findFiles('**/*');
 
-        await vscode.workspace.findTextInFiles(query, options, result => {
-            const filePath = result.uri.fsPath;
-            result.ranges.forEach(range => {
-                const startLine = range.start.line + 1;
-                console.log(`Found match in file: ${filePath} at line: ${startLine}\n${result.preview.text}`);
-                results.push(`File: ${filePath}:${startLine}\n${result.preview.text}`);
+        for (const file of files) {
+            const filePath = file.fsPath;
+            if (this.isIgnored(filePath, ignorePatterns)) {
+                continue;
+            }
+            const content = await fs.readFile(filePath, 'utf-8');
+            const lines = content.split('\n');
+
+            lines.forEach((line, index) => {
+                if (line.includes(text)) {
+                    results.push(`File: ${filePath}:${index + 1}\n${line}`);
+                }
             });
-        });
+        }
 
         return results;
+    }
+
+    private async getIgnorePatterns(): Promise<string[]> {
+        const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+        if (!workspaceFolder) {
+            return [];
+        }
+
+        const ignoreFilePath = path.join(workspaceFolder.uri.fsPath, '.cogentignore');
+        try {
+            const content = await fs.readFile(ignoreFilePath, 'utf-8');
+            return content.split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
+        } catch (error) {
+            return [];
+        }
+    }
+
+    private isIgnored(filePath: string, ignorePatterns: string[]): boolean {
+        return ignorePatterns.some(pattern => {
+            const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+            return regex.test(filePath);
+        });
     }
 }
