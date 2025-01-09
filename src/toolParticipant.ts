@@ -97,6 +97,10 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                         const input = part.input as { filename: string };
                         stream.markdown(`\n\nSearching for file: ${input.filename}`);
                     }
+                    if (part.name === 'cogent_searchText') {
+                        const input = part.input as { text: string };
+                        stream.markdown(`\n\nSearching for text: ${input.text}`);
+                    }
                     toolCalls.push(part);
                 }
             }

@@ -26,6 +26,7 @@ Before we embark on this magical journey, make sure you have:
 - 📜 **Custom Rules** - Teach your AI companion your project's special needs
 - 🔍 **Symbol Search** - Find symbols in the code base and return relevant code snippets with line numbers
 - 🔍 **File Search** - Search for files by partial filename matching and return relevant file paths
+- 🔍 **Text Search** - Search for exact text matches in workspace files
 
 ## 🚀 Installation
 
@@ -125,6 +126,11 @@ Cogent: "I'll search for files with the name 'utils' and return relevant file pa
 ```
 You: "@Cogent Read the contents of 'src/exampleFile.ts' from line 10 to line 20"
 Cogent: "I'll read the contents of 'src/exampleFile.ts' from line 10 to line 20 and include the starting line number in the response. Here's what I found..."
+```
+
+```
+You: "@Cogent Search for the text 'exampleText' in the workspace"
+Cogent: "I'll search for the text 'exampleText' in the workspace files and return the file paths and line numbers where the exact text matches are found. Here's what I found..."
 ```
 
 ## 🛠️ Patch Update Example

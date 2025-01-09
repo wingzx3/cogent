@@ -4,6 +4,7 @@ import { FileReadTool, FileWriteTool, FilePatchTool, CommandRunTool } from './to
 import { DiffView } from './components/DiffView';
 import { SymbolSearchTool } from './tools/SymbolSearchTool';
 import { FileSearchTool } from './tools/FileSearchTool';
+import { TextSearchTool } from './tools/TextSearchTool';
 
 export function activate(context: vscode.ExtensionContext) {
     console.log('Cogent extension is now active!');
@@ -15,7 +16,8 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.lm.registerTool('cogent_patchFile', new FilePatchTool()),
         vscode.lm.registerTool('cogent_runCommand', new CommandRunTool()),
         vscode.lm.registerTool('cogent_searchSymbol', new SymbolSearchTool()),
-        vscode.lm.registerTool('cogent_searchFile', new FileSearchTool())
+        vscode.lm.registerTool('cogent_searchFile', new FileSearchTool()),
+        vscode.lm.registerTool('cogent_searchText', new TextSearchTool())
     );
 
     // Register the tool participant

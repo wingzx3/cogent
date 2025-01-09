@@ -32,6 +32,16 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Include directory structure in the prompt. If disabled, directory structure will not be included."
+                },
+                "cogent.search_include_patterns": {
+                    "type": "string",
+                    "default": "*.php,*.tpl,*.js,*.ts,*.html,*.css,*.json,*.md",
+                    "description": "Glob expression pattern to include files in search."
+                },
+                "cogent.search_exclude_patterns": {
+                    "type": "string",
+                    "default": "**/node_modules/*,**/min/**,**/dev/**",
+                    "description": "Glob expression pattern to exclude files in search."
                 }
             }
         },
@@ -189,6 +199,27 @@
                     },
                     "required": [
                         "filename"
+                    ]
+                }
+            },
+            {
+                "name": "cogent_searchText",
+                "tags": [
+                    "files",
+                    "search"
+                ],
+                "displayName": "Search Text",
+                "modelDescription": "Search for exact text matches in workspace files",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "text": {
+                            "type": "string",
+                            "description": "Text to search for"
+                        }
+                    },
+                    "required": [
+                        "text"
                     ]
                 }
             }
