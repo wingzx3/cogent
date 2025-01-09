@@ -40,7 +40,7 @@
                 },
                 "cogent.search_exclude_patterns": {
                     "type": "string",
-                    "default": "/node_modules,/min,*.log,*.lock",
+                    "default": "**/node_modules/*,**/min/**,**/dev/**",
                     "description": "Glob expression pattern to exclude files in search."
                 }
             }
