@@ -21,7 +21,7 @@ export class FileWriteTool implements vscode.LanguageModelTool<IFileOperationPar
             if (!options.input.path) {
                 throw new Error('File path is required');
             }
-            const filePath = path.join(workspacePath, options.input.path);
+            const filePath = options.input.path;
             await fs.writeFile(filePath, options.input.content || '');
             return new vscode.LanguageModelToolResult([
                 new vscode.LanguageModelTextPart(`File created successfully at ${options.input.path}`)

@@ -30,8 +30,8 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
 
         const [model] = await vscode.lm.selectChatModels({ vendor: 'copilot', family: 'claude-3.5-sonnet' });
 
-        const tools = vscode.lm.tools.filter(tool => 
-            tool.name.startsWith('cogent_') || 
+        const tools = vscode.lm.tools.filter(tool =>
+            tool.name.startsWith('cogent_') ||
             tool.name === 'multi-tool-use-parallel'
         );
 
@@ -87,7 +87,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                     }
                     if (part.name === 'cogent_readFile') {
                         const input = part.input as ReadFileToolInput;
-                        stream.markdown(`\n\nReading files: ${JSON.stringify(input.paths)}`);
+                        stream.markdown(`\n\nReading files:\n${input.paths.map(path => `* ${path}`).join('\n')}`);
                     }
                     if (part.name === 'cogent_searchSymbol') {
                         const input = part.input as { symbol: string };
@@ -128,7 +128,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                 if (toolResultMetadata?.length) {
                     toolResultMetadata.forEach(meta => accumulatedToolResults[meta.toolCallId] = meta.result);
                 }
-                
+
                 return runWithTools();
             }
         };
@@ -138,7 +138,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
         if (hasFileUpdateCall) {
             stream.button({
                 command: 'cogent.applyChanges',
-                title: vscode.l10n.t('Apply All Changes')
+                title: vscode.l10n.t('Save All Changes')
             });
         }
 
@@ -154,7 +154,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
 
     const toolUser = vscode.chat.createChatParticipant('cogent.assistant', handler);
     toolUser.iconPath = vscode.Uri.joinPath(context.extensionUri, 'assets/cogent.jpeg');
-    
+
     // Register the apply changes command
     const applyChangesCommand = vscode.commands.registerCommand('cogent.applyChanges', async () => {
         await vscode.workspace.saveAll();

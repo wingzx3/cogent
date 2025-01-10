@@ -50,7 +50,13 @@
                 "id": "cogent.assistant",
                 "name": "cogent",
                 "description": "AI-powered development assistant",
-                "isSticky": true
+                "isSticky": true,
+                "commands": [
+                    {
+                      "name": "list",
+                      "description": "List all tools available."
+                    }
+                ]
             }
         ],
         "languageModelTools": [

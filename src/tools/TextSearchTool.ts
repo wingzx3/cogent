@@ -37,7 +37,7 @@ export class TextSearchTool implements vscode.LanguageModelTool<ITextSearchParam
 
             lines.forEach((line, index) => {
                 if (line.includes(text)) {
-                    results.push(`File: ${filePath}:${index + 1}\n${line}`);
+                    results.push(`File: ${filePath}:${index + 1} File Line Count: ${lines.length + 1}\n${line}`);
                     console.log(`Found text: ${text} in file: ${filePath} at line: ${index + 1}`);
                 }
             });
