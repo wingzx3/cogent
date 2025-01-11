@@ -160,7 +160,7 @@ When providing a patch for cogent_patchFile, follow this structure.
 3. cogent_runCommand
    - Avoid running dangerous commands
    - Run commands according to User's OS Level and Shell Type
-   - Commands that create a template or scaffold a project should use the current working directory, avoid creating sub folder projects.${customInstructionsSection}
+   - Commands that create a template or scaffold a project should use the current working directory, avoid creating sub folder projects.
 
 4. cogent_searchSymbol
    - Use this tool to search for symbols in the code base
@@ -179,6 +179,8 @@ When providing a patch for cogent_patchFile, follow this structure.
 7. cogent_searchText
    - Use this tool to search for exact text matches in workspace files
    - Return the file paths and line numbers where the exact text matches are found
+
+${customInstructionsSection}
 `}
                 </UserMessage>
                 <History context={this.props.context} priority={10} />
