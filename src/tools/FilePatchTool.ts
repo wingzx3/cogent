@@ -25,7 +25,7 @@ export class FilePatchTool implements vscode.LanguageModelTool<IFileOperationPar
             if (!options.input.path) {
                 throw new Error('File path is required');
             }
-            const filePath = options.input.path;
+            const filePath = path.join(workspacePath,options.input.path);
             const originalContent = await fs.readFile(filePath, 'utf-8');
 
             this.diffView = new DiffView(filePath, originalContent);

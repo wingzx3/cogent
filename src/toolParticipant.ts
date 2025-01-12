@@ -1,6 +1,8 @@
 import { renderPrompt } from '@vscode/prompt-tsx';
 import * as vscode from 'vscode';
-import { ToolCallRound, ToolResultMetadata, ToolUserPrompt } from './toolsPrompt';
+import { ToolCallRound, ToolResultMetadata, ToolUserPrompt, ToolUserProps } from './toolsPrompt';
+import { exec, execSync } from 'child_process';
+const { promisify } = require('util');
 
 export interface TsxToolUserMetadata {
     toolCallsMetadata: ToolCallsMetadata;
@@ -9,6 +11,10 @@ export interface TsxToolUserMetadata {
 export interface ToolCallsMetadata {
     toolCallRounds: ToolCallRound[];
     toolCallResults: Record<string, vscode.LanguageModelToolResult>;
+}
+
+interface ExtendedPromptProps extends ToolUserProps {
+    codeReviewDiff?: string;
 }
 
 interface ReadFileToolInput {
@@ -27,6 +33,23 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
             stream.markdown(`Available tools: ${vscode.lm.tools.map(tool => tool.name).join(', ')}\n\n`);
             return;
         }
+        let commandOptions:any;
+
+        if (request.command === 'codeReview') {
+            const execAsync = promisify(exec);
+            try {
+                const { diff, stderr } = await execAsync('git diff --cached');
+                if (stderr) {
+                    stream.markdown(`Error generating diff: ${stderr}`);
+                    return;
+                }
+                commandOptions = diff;
+
+            } catch (error) {
+                stream.markdown(`Error generating diff: ${error}`);
+                return;
+            }
+        }
 
         const [model] = await vscode.lm.selectChatModels({ vendor: 'copilot', family: 'claude-3.5-sonnet' });
 
@@ -44,8 +67,9 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
             {
                 context: chatContext,
                 request,
+                commandOptions,
                 toolCallRounds: [],
-                toolCallResults: {}
+                toolCallResults: {},
             },
             { modelMaxPromptTokens: model.maxInputTokens },
             model
@@ -116,6 +140,7 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                     {
                         context: chatContext,
                         request,
+                        commandOptions,
                         toolCallRounds,
                         toolCallResults: accumulatedToolResults
                     },

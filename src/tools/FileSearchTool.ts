@@ -12,7 +12,9 @@ export class FileSearchTool implements vscode.LanguageModelTool<IFileSearchParam
         _token: vscode.CancellationToken
     ) {
         const filename = options.input.filename;
-        const results = await this.searchFilesInWorkspace(filename);
+        const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath || '';
+        const results = (await this.searchFilesInWorkspace(filename)).map(result => path.relative(workspacePath, result) );
+        console.log(`🔍 Searching for files with name: ${filename}\n${results.join('\n')}`);
 
         if (results.length === 0) {
             return new vscode.LanguageModelToolResult([

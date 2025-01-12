@@ -22,20 +22,19 @@ export class FileReadTool implements vscode.LanguageModelTool<IFileOperationPara
             }
 
             const filePaths = options.input.paths || (options.input.path ? [options.input.path] : []);
-            const startLine = (options.input.startLine ?? 1) - 1; // Ensure startLine indexes from 1
+            const startLine = (options.input.startLine ?? 1); // Ensure startLine indexes from 1
             const endLine = options.input.endLine ?? Number.MAX_SAFE_INTEGER;
 
             const results = await Promise.all(filePaths.map(async (filePath) => {
                 try {
-                    const content = await fs.readFile(filePath, 'utf-8');
-                    const lines = content.split('\n').slice(startLine, endLine + 1);
-                    console.log( `Reading file: ${filePath} from line ${startLine + 1} to ${endLine}\n${lines.join('\n')}`);
+                    const content = await fs.readFile(path.join(workspacePath,filePath), 'utf-8');
+                    const lines = content.split('\n').slice(startLine - 1, endLine - 1);
+                    console.log( `📝 File: ${filePath}:${startLine}:${endLine}`);
                     return [
-                        '=' .repeat(80),
-                        `📝 File: ${filePath}`,
-                        `Starting Line: ${startLine + 1}`,
-                        '=' .repeat(80),
-                        lines.join('\n')
+                        `📝 File: ${filePath}:${startLine}:${endLine}`,
+                        `\`\`\``,
+                        lines.join('\n'),
+                        `\`\`\``
                     ].join('\n');
                 } catch (err) {
                     return `Error reading ${filePath}: ${(err as Error)?.message}`;

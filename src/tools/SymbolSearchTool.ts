@@ -1,5 +1,7 @@
+import { relative } from 'path';
 import * as vscode from 'vscode';
 import { Location, Position } from 'vscode';
+import * as path from 'path';
 
 interface ISymbolSearchParams {
     symbol: string;
@@ -27,6 +29,7 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
     private async searchSymbolInWorkspace(symbol: string): Promise<string[]> {
         const results: string[] = [];
         const symbolInfos = await vscode.commands.executeCommand<vscode.SymbolInformation[]>('vscode.executeWorkspaceSymbolProvider', symbol);
+        const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath || '';
 
         if (symbolInfos) {
             for (const symbolInfo of symbolInfos) {
@@ -35,10 +38,13 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
                     const symbolRange = symbolInfo.location.range;
                     const symbolText = document.getText(symbolRange);
                     const startLine = symbolRange.start.line + 1;
+                    const endLine = symbolRange.end.line + 1;
+                    const symbolLines = document.getText(new vscode.Range(symbolRange.start.line, 0, symbolRange.end.line, document.lineAt(symbolRange.end.line).text.length));
 
-                    console.log(`Found symbol: ${symbol} in file: ${symbolInfo.location.uri.fsPath} at line: ${startLine}`);
+                    const relativePath = path.relative(workspacePath, symbolInfo.location.uri.fsPath);
 
-                    results.push(`File: ${symbolInfo.location.uri.fsPath}:${startLine}`);
+                    console.log(`📝 File: ${relativePath}:${startLine}:${endLine}\n\`\`\`${symbolLines}\`\`\`\n`);
+                    results.push(`📝 File: ${relativePath}:${startLine}:${endLine}\n\`\`\`${symbolLines}\`\`\`\n`);
 
                     const exactPosition = this.findSymbolPositionInRange(symbolText, symbol, symbolRange.start);
                     const references = await this.findReferences(new Location(symbolInfo.location.uri, exactPosition));
@@ -64,19 +70,21 @@ export class SymbolSearchTool implements vscode.LanguageModelTool<ISymbolSearchP
     private async findReferences(location: Location): Promise<string[]> {
         const results: string[] = [];
         const references = await vscode.commands.executeCommand<Location[]>('vscode.executeReferenceProvider', location.uri, new Position(location.range.start.line, location.range.start.character));
+        const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath || '';
 
         if (references) {
             for (const reference of references) {
                 const document = await vscode.workspace.openTextDocument(reference.uri);
                 const referenceRange = reference.range;
-                let startLine = Math.max(referenceRange.start.line - 2, 0);
-                const endLine = Math.min(referenceRange.end.line + 2, document.lineCount - 1);
+                let startLine = Math.max(referenceRange.start.line - 7, 0);
+                let endLine = Math.min(referenceRange.end.line + 7, document.lineCount - 1);
                 const referenceText = document.getText(new vscode.Range(startLine, 0, endLine, document.lineAt(endLine).text.length));
                 startLine++;
+                endLine++;
 
-                console.log(`File: ${reference.uri.fsPath}:${startLine}\n${referenceText}`);
-
-                results.push(`File: ${reference.uri.fsPath}:${startLine}\n${referenceText}`);
+                const relativePath = path.relative( workspacePath, reference.uri.fsPath );
+                console.log(`📝 File: ${relativePath}:${startLine}:${endLine}\n\`\`\`${referenceText}\`\`\``);
+                results.push(`📝 File: ${relativePath}:${startLine}:${endLine}\n\`\`\`${referenceText}\`\`\`\n`);
             }
         }
 
