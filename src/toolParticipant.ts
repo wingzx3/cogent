@@ -2,7 +2,6 @@ import { renderPrompt } from '@vscode/prompt-tsx';
 import * as vscode from 'vscode';
 import { ToolCallRound, ToolResultMetadata, ToolUserPrompt, ToolUserProps } from './toolsPrompt';
 import { exec, execSync } from 'child_process';
-const { promisify } = require('util');
 
 export interface TsxToolUserMetadata {
     toolCallsMetadata: ToolCallsMetadata;
@@ -33,18 +32,28 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
             stream.markdown(`Available tools: ${vscode.lm.tools.map(tool => tool.name).join(', ')}\n\n`);
             return;
         }
+
         let commandOptions:any;
+        if (request.command === 'codeReviewStaging' || request.command === 'codeReviewBranch') {
+            const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
 
-        if (request.command === 'codeReview') {
-            const execAsync = promisify(exec);
+            if (!workspacePath) {
+                stream.markdown('No workspace folder found');
+                return;
+            }
+
             try {
-                const { diff, stderr } = await execAsync('git diff --cached');
-                if (stderr) {
-                    stream.markdown(`Error generating diff: ${stderr}`);
-                    return;
+                switch( request.command ) {
+                case 'codeReviewStaging':
+                    commandOptions = execSync('git diff --cached ', { cwd: workspacePath }).toString();
+                    break;
+                case 'codeReviewBranch':
+                    let branch = request.prompt.trim();
+                    if (!branch || branch === '') {
+                        branch = 'master';
+                    }
+                    commandOptions = execSync(`git diff ${branch}...HEAD`, { cwd: workspacePath }).toString();
                 }
-                commandOptions = diff;
-
             } catch (error) {
                 stream.markdown(`Error generating diff: ${error}`);
                 return;

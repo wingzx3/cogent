@@ -48,11 +48,6 @@ const DEFAULT_PROMPT = `You are cogent, a sophisticated coding assistant that co
 - Follow consistent formatting and structure
 - Consider edge cases and potential failure points
 - Prioritize maintainability and extensibility
-
-## Tool Use Guidelines
-- When patching files, verify line numbers are accurate and context is preserved
-- For file operations, use line numbers from search results as reference points
-- Keep file reads focused and minimal, preferring targeted searches
 `;
 
 const CODE_REVIEW_PROMPT = `You are a code review assistant. Your goal is to provide comprehensive and actionable feedback on code changes using the provided unified diff as the initial input. You have access to tools that allow you to investigate the code base further, including:
@@ -183,14 +178,21 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
         const shellType = this.getShellType();
         const osInfo = `\n## User's OS Level\n- ${osLevel} (using ${shellType})\n`;
 
-        let prompt, finalInstructions = '';
+        let prompt, finalInstructions = '', includeUserPrompt;
         switch( this.props.request.command ) {
-            case 'codeReview':
+            case 'codeReviewStaging':
                 prompt = CODE_REVIEW_PROMPT;
                 finalInstructions = '\n## Unified Diff for Review.\n' + this.props.commandOptions;
+                includeUserPrompt = false;
             break;
+            case 'codeReviewBranch':
+                prompt = CODE_REVIEW_PROMPT;
+                finalInstructions = '\n## Unified Diff for Review.\n' + this.props.commandOptions;
+                includeUserPrompt = false;
             default:
                 prompt = DEFAULT_PROMPT;
+                includeUserPrompt = true;
+
             break;
         }
 
@@ -204,11 +206,15 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
                     {`${prompt}${osInfo}${customInstructionsSection}${finalInstructions}`}
                 </UserMessage>
                 <History context={this.props.context} priority={10} />
-                <PromptReferences
-                    references={this.props.request.references}
-                    priority={20}
-                />
-                <UserMessage>{`# User Instructions:\n${this.props.request.prompt}`}</UserMessage>
+                {includeUserPrompt && (
+                    <>
+                        <PromptReferences
+                            references={this.props.request.references}
+                            priority={20}
+                        />
+                        <UserMessage>{`# User Instructions:\n${this.props.request.prompt}`}</UserMessage>
+                    </>
+                )}
                 <ToolCalls
                     toolCallRounds={this.props.toolCallRounds}
                     toolInvocationToken={this.props.request.toolInvocationToken}

@@ -1,8 +1,8 @@
 {
     "name": "cogent",
-    "displayName": "Cogent",
+    "displayName": "Cogent (Auphan Fork)",
     "description": "Cogent is a Copilot extension that gives it agenting capabilities like executing commands, editing and reading files, and more.",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "engines": {
         "vscode": "^1.95.0"
     },
@@ -12,10 +12,10 @@
     ],
     "icon": "assets/cogent.jpeg",
     "license": "MIT",
-    "publisher": "kturung",
+    "publisher": "wingzx3",
     "repository": {
         "type": "git",
-        "url": "https://github.com/kturung/cogent"
+        "url": "https://github.com/wingzx3/cogent"
     },
     "activationEvents": [],
     "main": "./out/extension.js",
@@ -53,9 +53,18 @@
                 "isSticky": true,
                 "commands": [
                     {
-                      "name": "list",
-                      "description": "List all tools available."
+                        "name": "list",
+                        "description": "List all tools available."
+                    },
+                    {
+                      "name": "codeReviewStaging",
+                      "description": "Code reviews the staged changes in GIT."
+                    },
+                    {
+                        "name": "codeReviewBranch",
+                        "description": "Code reviews the changes between this branch and master."
                     }
+
                 ]
             }
         ],
@@ -93,23 +102,20 @@
                     "patch"
                 ],
                 "displayName": "Patch File",
-                "modelDescription": "Patch an existing file in the workspace using standard unified diff (patch) format",
+                "modelDescription": "This tool allows for precise, surgical replaces to files by specifying exactly what content to search for and what to replace it with",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "path": {
                             "type": "string",
-                            "description": "Relative path to the file"
+                            "description": "Relative path to the file to modify"
                         },
-                        "patch": {
+                        "diff": {
                             "type": "string",
-                            "description": "Standard unified diff (patch)"
+                            "description": "Diff content in the format: <<<<<<< SEARCH\\n[search content]\\n=======\\n[replace content]\\n>>>>>>> REPLACE"
                         }
                     },
-                    "required": [
-                        "path",
-                        "patch"
-                    ]
+                    "required": ["path", "diff"]
                 }
             },
             {
@@ -119,13 +125,13 @@
                     "command"
                 ],
                 "displayName": "Run Command",
-                "modelDescription": "Execute a command in the VS Code terminal",
+                "modelDescription": "Execute a command in the VS Code terminal. Run commands according to User's OS Level and Shell Type. Commands that create a template or scaffold a project should use the current working directory, avoid creating sub folder projects.",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
                         "command": {
                             "type": "string",
-                            "description": "Command to execute"
+                            "description": "Command to execute."
                         }
                     },
                     "required": [
@@ -154,7 +160,7 @@
                         },
                         "startLine": {
                             "type": "number",
-                            "description": "The starting line number to read from"
+                            "description": "The starting line number to read from. If negative starts from the end of the file."
                         },
                         "endLine": {
                             "type": "number",
@@ -222,6 +228,14 @@
                         "text": {
                             "type": "string",
                             "description": "Text to search for"
+                        },
+                        "files": {
+                            "type": "array",
+                            "items": {
+                                "type": "string",
+                                "description": "File to search"
+                            },
+                            "description": "Array of files to search in (optional)"
                         }
                     },
                     "required": [
@@ -240,7 +254,8 @@
         "test": "vscode-test"
     },
     "dependencies": {
-        "@vscode/prompt-tsx": "^0.3.0-alpha.12"
+        "@vscode/prompt-tsx": "^0.3.0-alpha.12",
+        "diff": "^5.1.0"
     },
     "devDependencies": {
         "@types/diff": "^6.0.0",

@@ -22,16 +22,38 @@ export class FileReadTool implements vscode.LanguageModelTool<IFileOperationPara
             }
 
             const filePaths = options.input.paths || (options.input.path ? [options.input.path] : []);
-            const startLine = (options.input.startLine ?? 1); // Ensure startLine indexes from 1
+            let startLine = options.input.startLine ?? 1;
             const endLine = options.input.endLine ?? Number.MAX_SAFE_INTEGER;
 
             const results = await Promise.all(filePaths.map(async (filePath) => {
                 try {
-                    const content = await fs.readFile(path.join(workspacePath,filePath), 'utf-8');
-                    const lines = content.split('\n').slice(startLine - 1, endLine - 1);
-                    console.log( `📝 File: ${filePath}:${startLine}:${endLine}`);
+                    const fullPath = path.isAbsolute(filePath) ? filePath : path.join(workspacePath, filePath);
+                    const uri = vscode.Uri.file(fullPath);
+                    let content = '';
+
+                    const openDoc = vscode.workspace.textDocuments.find(doc => doc.uri.fsPath === uri.fsPath);
+                    if (openDoc) {
+                        content = openDoc.getText();
+                    } else {
+                        content = await fs.readFile(fullPath, 'utf-8');
+                    }
+
+                    const allLines = content.split('\n');
+                    const totalLines = allLines.length;
+
+                    // Handle negative startLine
+                    if (startLine < 0) {
+                        startLine = Math.max(1, totalLines + startLine + 1);
+                    }
+
+                    // Ensure bounds
+                    const effectiveStartLine = Math.max(1, Math.min(startLine, totalLines));
+                    const effectiveEndLine = Math.min(endLine, totalLines);
+
+                    const lines = allLines.slice(effectiveStartLine - 1, effectiveEndLine);
+                    console.log(`📝 File: ${filePath}:${effectiveStartLine}:${effectiveEndLine}`);
                     return [
-                        `📝 File: ${filePath}:${startLine}:${endLine}`,
+                        `📝 File: ${filePath}:${effectiveStartLine}:${effectiveEndLine}`,
                         `\`\`\``,
                         lines.join('\n'),
                         `\`\`\``
