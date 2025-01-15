@@ -196,7 +196,7 @@ class SearchReplaceDiffStrategy {
         if (matchIndex === -1 || bestMatchScore < this.fuzzyThreshold) {
             const searchChunk = searchLines.join('\n');
             const bestMatchSection = bestMatchContent
-                ? `\n\nBest Match Found:\n${addLineNumbers(bestMatchContent, matchIndex + 1)}`
+                ? `\n\nBest Match Found:\n${bestMatchContent}`
                 : `\n\nBest Match Found:\n(no match)`;
 
             const lineRange = startLine || endLine ?
@@ -204,7 +204,7 @@ class SearchReplaceDiffStrategy {
 
             return {
                 success: false,
-                error: `No sufficiently similar match found${lineRange} (${Math.floor(bestMatchScore * 100)}% similar, needs ${Math.floor(this.fuzzyThreshold * 100)}%)\n\nDebug Info:\n- Similarity Score: ${Math.floor(bestMatchScore * 100)}%\n- Required Threshold: ${Math.floor(this.fuzzyThreshold * 100)}%\n- Search Range: ${startLine && endLine ? `lines ${startLine}-${endLine}` : 'start to end'}\n\nSearch Content:\n${addLineNumbers(searchChunk)}${bestMatchSection}`
+                error: `No sufficiently similar match found${lineRange} (${Math.floor(bestMatchScore * 100)}% similar, needs ${Math.floor(this.fuzzyThreshold * 100)}%)\n\nDebug Info:\n- Similarity Score: ${Math.floor(bestMatchScore * 100)}%\n- Required Threshold: ${Math.floor(this.fuzzyThreshold * 100)}%\n- Search Range: ${startLine && endLine ? `lines ${startLine}-${endLine}` : 'start to end'}\n\nSearch Content:\n${searchChunk}${bestMatchSection}`
             };
         }
 
@@ -335,16 +335,16 @@ export class FilePatchTool implements vscode.LanguageModelTool<ApplyDiffInput> {
 
         if (autoConfirm) {
             return {
-                invocationMessage: `Applying diff to ${options.input.path} (lines ${options.input.start_line}-${options.input.end_line})`
+                invocationMessage: `Applying diff to ${options.input.path}`
             };
         }
 
         return {
-            invocationMessage: `Applying diff to ${options.input.path} (lines ${options.input.start_line}-${options.input.end_line})`,
+            invocationMessage: `Applying diff to ${options.input.path}`,
             confirmationMessages: {
                 title: 'Apply Diff',
                 message: new vscode.MarkdownString(
-                    `Apply diff to ${options.input.path} between lines ${options.input.start_line}-${options.input.end_line}?`
+                    `Apply diff to ${options.input.path}?`
                 )
             }
         };
