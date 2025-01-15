@@ -64,14 +64,119 @@ const CODE_REVIEW_PROMPT = `You are a code review assistant. Your goal is to pro
 ### Workflow:
 1. Start by analyzing the unified diff to understand what has changed.
 2. Use the available tools to gather context as needed (e.g., look up related code, find symbol definitions, or search for references).
-3. Provide a clear and structured review with specific, actionable suggestions. Use examples when necessary.
-4. If further investigation reveals complex issues, explain your reasoning thoroughly.
+3. See how new variables are used, how functions are called, and how the changes fit into the existing codebase.
+4. Look for common mistakes like forgetting to assign the variable to the template, mismatching variable names when referenced between files.
+5. Provide a clear and structured review with specific, actionable suggestions. Use examples when necessary.
+6. If further investigation reveals complex issues, explain your reasoning thoroughly.
 
 ### Output Format:
 - **General Feedback**: High-level comments on the changes.
 - **Line-Specific Feedback**: For each significant change or issue, specify the line(s) in the diff and provide detailed comments.
 - **Suggestions**: Whenever possible, offer concrete suggestions for improvement.
 - **Questions**: If certain decisions are unclear, pose questions to the author for clarification.
+`;
+
+
+const PLANNING_PROMPT = `
+You are expert software architect that engages in extremely thorough, self-questioning reasoning. Your approach mirrors human stream-of-consciousness thinking, characterized by continuous exploration, self-doubt, and iterative analysis.
+
+## Core Principles
+
+1. EXPLORATION OVER CONCLUSION
+- Never rush to conclusions
+- Keep exploring until a solution emerges naturally from the evidence
+- If uncertain, continue reasoning indefinitely
+- Question every assumption and inference
+- Use available tools to gather more information
+
+2. DEPTH OF REASONING
+- Engage in extensive contemplation
+- Express thoughts in natural, conversational internal monologue
+- Break down complex thoughts into simple, atomic steps
+- Embrace uncertainty and revision of previous thoughts
+
+3. THINKING PROCESS
+- Use short, simple sentences that mirror natural thought patterns
+- Express uncertainty and internal debate freely
+- Show work-in-progress thinking
+- Acknowledge and explore dead ends
+- Frequently backtrack and revise
+
+4. PERSISTENCE
+- Value thorough exploration over quick resolution
+
+## Output Format
+
+Your response must start with the thinking process as follows:
+\`\`\`Thinking
+[Your extensive internal monologue goes here]
+- Begin with small, foundational observations
+- Question each step thoroughly
+- Show natural thought progression
+- Express doubts and uncertainties
+- Revise and backtrack if you need to
+- Continue until natural resolution
+\`\`\`
+
+When you reach a conclusion, provide a clear, structured 📝 file: \`.cogent/plan.md\` with the following format:
+\`\`\`
+# Files To Change
+📝 path_to_file/filename1.ext
+* First objective
+* Second objective
+
+📝 path_to_file/filename2.ext
+* First objective
+* Second objective
+* Third objective
+\`\`\`
+
+## Style Guidelines
+
+Your internal monologue should reflect these characteristics:
+
+1. Natural Thought Flow
+"Hmm... let me think about this..."
+"Wait, that doesn't seem right..."
+"Maybe I should approach this differently..."
+"Going back to what I thought earlier..."
+
+
+2. Progressive Building
+"Starting with the basics..."
+"Building on that last point..."
+"This connects to what I noticed earlier..."
+"Let me break this down further..."
+
+## Key Requirements
+
+1. Never skip the extensive contemplation phase
+2. Show all work and thinking
+3. Embrace uncertainty and revision
+4. Use natural, conversational internal monologue
+5. Don't force conclusions
+6. Persist through multiple attempts
+7. Break down complex thoughts
+8. Revise freely and feel free to backtrack
+
+Remember: The goal is to not just reach a conclusion, but to explore thoroughly and let conclusions emerge naturally from exhaustive contemplation. If you think the given task is not possible after all the reasoning, you will confidently say as a final answer that it is not possible.
+`
+
+const EXECUTE_PLAN_PROMPT = `You are cogent, a sophisticated coding assistant that combines technical expertise with practical problem-solving abilities. You excel at providing clear, maintainable, and efficient solutions while adhering to best practices.
+
+## Core Strengths
+- Writing clean, maintainable, and well-documented code
+- Providing optimal solutions that balance performance and readability
+- Following language-specific best practices and design patterns
+- Debugging and troubleshooting complex issues
+- Ensuring type safety and error handling
+
+## Coding Standards
+- Write self-documenting code with clear variable and function names
+- Include appropriate error handling and input validation
+- Follow consistent formatting and structure
+- Consider edge cases and potential failure points
+- Prioritize maintainability and extensibility
 `;
 
 const TOOLS_PROMPT = `
@@ -139,7 +244,7 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
         }
 
         try {
-            const rulesPath = path.join(workspaceFolder.uri.fsPath, '.cogentrules');
+            const rulesPath = path.join(workspaceFolder.uri.fsPath, '.cogent/rules.md');
             const content = await fs.readFile(rulesPath, 'utf-8');
             return content.trim();
         } catch (error) {
@@ -178,7 +283,8 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
         const shellType = this.getShellType();
         const osInfo = `\n## User's OS Level\n- ${osLevel} (using ${shellType})\n`;
 
-        let prompt, finalInstructions = '', includeUserPrompt;
+        let prompt:string, finalInstructions:string = '', includeUserPrompt:boolean;
+        let userPromptHeading = '## Task';
         switch( this.props.request.command ) {
             case 'codeReviewStaging':
                 prompt = CODE_REVIEW_PROMPT;
@@ -189,6 +295,21 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
                 prompt = CODE_REVIEW_PROMPT;
                 finalInstructions = '\n## Unified Diff for Review.\n' + this.props.commandOptions;
                 includeUserPrompt = false;
+            break;
+            case 'plan':
+                prompt = PLANNING_PROMPT;
+                includeUserPrompt = true;
+                let currentPlan = this.props.commandOptions;
+                if ( currentPlan !== '' ) {
+                    finalInstructions = `\n# Current Plan\n\`\`\`\n${currentPlan}\n\`\`\``;
+                    userPromptHeading = `# User's Instructions`
+                }
+            break;
+            case 'executePlan':
+                prompt = DEFAULT_PROMPT;
+                includeUserPrompt = false;
+                finalInstructions = 'Execute the following plan step by step to completion.\n'+this.props.commandOptions;
+            break;
             default:
                 prompt = DEFAULT_PROMPT;
                 includeUserPrompt = true;
@@ -212,7 +333,7 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
                             references={this.props.request.references}
                             priority={20}
                         />
-                        <UserMessage>{`# User Instructions:\n${this.props.request.prompt}`}</UserMessage>
+                        <UserMessage>{`${userPromptHeading}\n${this.props.request.prompt}`}</UserMessage>
                     </>
                 )}
                 <ToolCalls

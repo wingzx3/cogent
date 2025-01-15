@@ -63,8 +63,15 @@
                     {
                         "name": "codeReviewBranch",
                         "description": "Code reviews the changes between this branch and master."
+                    },
+                    {
+                        "name": "plan",
+                        "description": "Plan the task and generate a .cogent/plan.md file in the workspace directory."
+                    },
+                    {
+                        "name": "executePlan",
+                        "description": "Execute the tasks laid out in the .cogent/plan.md file."
                     }
-
                 ]
             }
         ],

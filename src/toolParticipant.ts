@@ -2,6 +2,8 @@ import { renderPrompt } from '@vscode/prompt-tsx';
 import * as vscode from 'vscode';
 import { ToolCallRound, ToolResultMetadata, ToolUserPrompt, ToolUserProps } from './toolsPrompt';
 import { exec, execSync } from 'child_process';
+import * as path from 'path';
+import * as fs from 'fs/promises';
 
 export interface TsxToolUserMetadata {
     toolCallsMetadata: ToolCallsMetadata;
@@ -25,6 +27,24 @@ export function isTsxToolUserMetadata(obj: unknown): obj is TsxToolUserMetadata 
         !!(obj as TsxToolUserMetadata).toolCallsMetadata &&
         Array.isArray((obj as TsxToolUserMetadata).toolCallsMetadata.toolCallRounds);
 }
+
+
+async function getPlanFile(): Promise<string> {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+        return '';
+    }
+
+    try {
+        const rulesPath = path.join(workspaceFolder.uri.fsPath, '.cogent/plan.md');
+        const content = await fs.readFile(rulesPath, 'utf-8');
+        return content;
+    } catch (error) {
+        // File doesn't exist or can't be read, return empty string
+        return '';
+    }
+}
+
 
 export function registerToolUserChatParticipant(context: vscode.ExtensionContext) {
     const handler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, chatContext: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
@@ -56,6 +76,17 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                 }
             } catch (error) {
                 stream.markdown(`Error generating diff: ${error}`);
+                return;
+            }
+        }
+
+        if ( request.command == 'plan' || request.command == 'executePlan' ) {
+            commandOptions = await getPlanFile();
+            if ( request.command == 'plan' && commandOptions !== '' ) {
+                stream.markdown(`Revising existing plan\n`);
+            }
+            if ( request.command == 'executePlan' && commandOptions === '' ) {
+                stream.markdown(`No plan found. Please use /plan command to generate it.\n`);
                 return;
             }
         }
