@@ -1,6 +1,6 @@
 # 🚀 Cogent: Your Agentic AI-Powered Coding Companion
 
-> "Because rubber duck debugging is better with a duck that talks back!" 
+> "Because rubber duck debugging is better with a duck that talks back!"
 
 ![Cogent Demo](assets/cogent.gif)
 
@@ -77,7 +77,7 @@ Cogent can be as nosy or respectful as you want with your workspace:
 
 ### Custom Rules
 
-Want Cogent to follow your house rules? Create a `.cogentrules` file in your workspace root:
+Want Cogent to follow your house rules? Create a `.cogent/rules.md` file in your workspace root:
 
 ```plaintext
 # Example .cogentrules
@@ -91,7 +91,7 @@ Think of it as leaving a note for your AI roommate about how to keep the code cl
 ## 🎮 Usage
 
 1. Open GitHub Copilot Chat in VS Code
-2. Type `@Cogent` followed by your request
+2. Type `@cogent` followed by your request
 3. Watch your agentic buddy spring into action!
 
 Cogent works autonomously but always asks for your approval when:
@@ -100,6 +100,43 @@ Cogent works autonomously but always asks for your approval when:
 - Making significant project changes
 
 This ensures you stay in control while letting Cogent handle the heavy lifting!
+
+### Commands
+
+1. `@cogent /codeReviewStaging` - Generates a unified diff from the staged files in GIT and code reviews it.
+2. `@cogent /codeReviewBranch [branch]` - Generates a unified diff between your HEAD and branch specified (default: master) and code reviews it.
+
+### 🗂️ Plan and Execute Plan Commands
+
+Cogent now supports planning and executing tasks using the `/plan` and `/executePlan` commands.
+
+#### Plan Command
+
+The `/plan` command modifies the prompt given to the LLM to tell it to plan the task and generate a `.cogent/plan.md` file in the workspace directory. The `plan.md` file contains the task description and all the files and changes it needs to make to each file as part of the plan.
+
+Example `plan.md` file:
+
+```md
+# Task
+Description of task
+
+# Files
+path/filename1.ext
+* First objective
+* Second objective
+
+path/filename2.ext
+* First objective
+* Second objective
+* Third objective
+```
+
+#### Execute Plan Command
+
+The `/executePlan` command reads the `plan.md` file and executes the tasks laid out there.
+
+To use these commands, simply type `@cogent /plan` to create a plan and `@cogent /executePlan` to execute the plan.
+
 
 ## 💬 Example Conversations
 
@@ -112,42 +149,6 @@ Cogent: "I'll analyze your code and suggest some improvements. Here's my plan...
 You: "@Cogent Create a new React component for user authentication"
 Cogent: "I'll help you create a secure authentication component. First, let me outline the structure..."
 ```
-
-```
-You: "@Cogent Search for the symbol 'myFunction' in the code base"
-Cogent: "I'll search for the symbol 'myFunction' and return relevant code snippets with line numbers. Here's what I found..."
-```
-
-```
-You: "@Cogent Search for files with the name 'utils'"
-Cogent: "I'll search for files with the name 'utils' and return relevant file paths. Here's what I found..."
-```
-
-```
-You: "@Cogent Read the contents of 'src/exampleFile.ts' from line 10 to line 20"
-Cogent: "I'll read the contents of 'src/exampleFile.ts' from line 10 to line 20 and include the starting line number in the response. Here's what I found..."
-```
-
-```
-You: "@Cogent Search for the text 'exampleText' in the workspace"
-Cogent: "I'll search for the text 'exampleText' in the workspace files and return the file paths and line numbers where the exact text matches are found. Here's what I found..."
-```
-
-## 🛠️ Patch Update Example
-
-Cogent now supports patch format updates for files. Here's how you can use the `cogent_patchFile` tool with patch format updates:
-
-```json
-{
-    "name": "cogent_patchFile",
-    "input": {
-        "path": "src/exampleFile.ts",
-        "patch": "diff --git a/src/exampleFile.ts b/src/exampleFile.ts\nindex 83db48f..bf269f4 100644\n--- a/src/exampleFile.ts\n+++ b/src/exampleFile.ts\n@@ -1,6 +1,6 @@\n export function example() {\n-    console.log('Old content');\n+    console.log('New content');\n }\n"
-    }
-}
-```
-
-This will apply the specified patch to `src/exampleFile.ts`, updating only the lines that have changed.
 
 ## 🎭 Behind the Scenes
 
