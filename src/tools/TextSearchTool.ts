@@ -41,6 +41,8 @@ export class TextSearchTool implements vscode.LanguageModelTool<ITextSearchParam
             openEditors.set(doc.uri.fsPath, doc);
         });
 
+        text = text.toLowerCase();
+
         for (let filePath of files) {
             let content: string;
 
@@ -57,7 +59,7 @@ export class TextSearchTool implements vscode.LanguageModelTool<ITextSearchParam
             const lines = content.split('\n');
 
             lines.forEach((line, index) => {
-                if (line.includes(text)) {
+                if (line.toLowerCase().includes(text)) {
                     const relativePath = path.relative( workspacePath, filePath );
                     console.log(`📝 File: ${relativePath}:${index + 1}\n\`\`\`${line}\`\`\`\n`);
                     results.push(`📝 File: ${relativePath}:${index + 1}\n\`\`\`${line}\`\`\`\n`);

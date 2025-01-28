@@ -53,6 +53,11 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
             return;
         }
 
+        if (request.command === 'testmd') {
+            stream.markdown(request.prompt);
+            return;
+        }
+
         let commandOptions:any;
         if (request.command === 'codeReviewStaging' || request.command === 'codeReviewBranch') {
             const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath;
@@ -91,7 +96,8 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
             }
         }
 
-        const [model] = await vscode.lm.selectChatModels({ vendor: 'copilot', family: 'claude-3.5-sonnet' });
+        // const [model] = await vscode.lm.selectChatModels({ vendor: 'copilot', family: 'claude-3.5-sonnet' });
+        const model = request.model;
 
         const tools = vscode.lm.tools.filter(tool =>
             tool.name.startsWith('cogent_') ||
@@ -144,8 +150,10 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
             for await (const part of response.stream) {
                 if (part instanceof vscode.LanguageModelTextPart) {
                     stream.markdown(part.value);
+                    console.log('TEXT PART: ', part.value);
                     responseStr += part.value;
                 } else if (part instanceof vscode.LanguageModelToolCallPart) {
+                    console.log('Tool Call: ', part);
                     if (part.name === 'cogent_patchFile') {
                         hasFileUpdateCall = true;
                     }
@@ -155,15 +163,23 @@ export function registerToolUserChatParticipant(context: vscode.ExtensionContext
                     }
                     if (part.name === 'cogent_searchSymbol') {
                         const input = part.input as { symbol: string };
-                        stream.markdown(`\n\nSearching for symbol: ${input.symbol}`);
+                        stream.markdown(`\n\nSearching for symbol: \`${input.symbol}\``);
                     }
                     if (part.name === 'cogent_searchFile') {
-                        const input = part.input as { filename: string };
-                        stream.markdown(`\n\nSearching for file: ${input.filename}`);
+                        const input = part.input as { globPatternList: string };
+                        stream.markdown(`\n\nSearching for file: \`${input.globPatternList.replace(/([*_~`])/g, '\\$1')}\``);
                     }
                     if (part.name === 'cogent_searchText') {
                         const input = part.input as { text: string };
-                        stream.markdown(`\n\nSearching for text: ${input.text}`);
+                        stream.markdown(`\n\nSearching for text: \`${input.text}\``);
+                    }
+                    if (part.name === 'cogent_openFile') {
+                        const input = part.input as { path: string; line?: number };
+                        stream.markdown(`\n\nOpening file: ${input.path}${input.line ? ` at line ${input.line}` : ''}`);
+                    }
+                    if (part.name === 'cogent_codeOutline') {
+                        const input = part.input as { path: string };
+                        stream.markdown(`\n\nGenerating code outline for: \`${input.path}\``);
                     }
                     toolCalls.push(part);
                 }

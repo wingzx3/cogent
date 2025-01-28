@@ -3,7 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 
 interface IFileSearchParams {
-    filename: string;
+    globPatternList: string;
 }
 
 export class FileSearchTool implements vscode.LanguageModelTool<IFileSearchParams> {
@@ -11,14 +11,14 @@ export class FileSearchTool implements vscode.LanguageModelTool<IFileSearchParam
         options: vscode.LanguageModelToolInvocationOptions<IFileSearchParams>,
         _token: vscode.CancellationToken
     ) {
-        const filename = options.input.filename;
+        const globPatterns = options.input.globPatternList;
         const workspacePath = vscode.workspace.workspaceFolders?.[0].uri.fsPath || '';
-        const results = (await this.searchFilesInWorkspace(filename)).map(result => path.relative(workspacePath, result) );
-        console.log(`🔍 Searching for files with name: ${filename}\n${results.join('\n')}`);
+        const results = (await this.searchFilesInWorkspace(globPatterns)).map(result => path.relative(workspacePath, result).replace(/\\/g, '/'));
+        console.log(`🔍 Searching for files matching patterns: ${globPatterns}\n${results.join('\n')}`);
 
         if (results.length === 0) {
             return new vscode.LanguageModelToolResult([
-                new vscode.LanguageModelTextPart(`No files found for: ${filename}`)
+                new vscode.LanguageModelTextPart(`No files found matching patterns: ${globPatterns}`)
             ]);
         }
 
@@ -27,36 +27,16 @@ export class FileSearchTool implements vscode.LanguageModelTool<IFileSearchParam
         ]);
     }
 
-    private async searchFilesInWorkspace(filename: string): Promise<string[]> {
-        const results: string[] = [];
-        const workspaceFolders = vscode.workspace.workspaceFolders;
+    private async searchFilesInWorkspace(globPatterns: string): Promise<string[]> {
+        const excludePatterns = vscode.workspace.getConfiguration('cogent').get('search_exclude_patterns', '').split(',').map(pattern => pattern.charAt(0) != '/' ? '**/' + pattern.trim() : pattern.trim());
+        const patterns = globPatterns.split(',').map( p => p.charAt(0) != '/' ? '**/' + p.trim() : p.trim());
+        const globPattern = patterns.length > 1 ? `{${patterns.join(',')}}` : patterns[0];
 
-        if (workspaceFolders) {
-            for (const folder of workspaceFolders) {
-                const folderPath = folder.uri.fsPath;
-                const files = await this.findFiles(folderPath, filename);
-                results.push(...files);
-            }
-        }
+        const files = await vscode.workspace.findFiles(
+            globPattern,
+            excludePatterns.length > 0 ? '{' + excludePatterns.join(',') + '}' : null
+        );
 
-        return results;
-    }
-
-    private async findFiles(dir: string, filename: string): Promise<string[]> {
-        const results: string[] = [];
-        const files = await fs.readdir(dir, { withFileTypes: true });
-
-        for (const file of files) {
-            const filePath = path.join(dir, file.name);
-
-            if (file.isDirectory()) {
-                const subDirResults = await this.findFiles(filePath, filename);
-                results.push(...subDirResults);
-            } else if (file.name.includes(filename)) {
-                results.push(filePath);
-            }
-        }
-
-        return results;
+        return files.map(file => file.fsPath);
     }
 }

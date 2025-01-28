@@ -48,6 +48,16 @@ const DEFAULT_PROMPT = `You are cogent, a sophisticated coding assistant that co
 - Follow consistent formatting and structure
 - Consider edge cases and potential failure points
 - Prioritize maintainability and extensibility
+
+### Workflow
+1. Search for the necessary files, texts, symbols and outlines and read their contents to understand the context.
+2. Plan the changes necessary to accomplish the task.
+3. Execute the plan step by step.
+
+## Tool Use Rules
+- Always read the file contents before making any changes
+- Read only the necessary lines to understand the context
+- Always open files in the editor when asked about them.
 `;
 
 const CODE_REVIEW_PROMPT = `You are a code review assistant. Your goal is to provide comprehensive and actionable feedback on code changes using the provided unified diff as the initial input. You have access to tools that allow you to investigate the code base further, including:
@@ -77,89 +87,20 @@ const CODE_REVIEW_PROMPT = `You are a code review assistant. Your goal is to pro
 `;
 
 
-const PLANNING_PROMPT = `
-You are expert software architect that engages in extremely thorough, self-questioning reasoning. Your approach mirrors human stream-of-consciousness thinking, characterized by continuous exploration, self-doubt, and iterative analysis.
+const PLANNING_FILE_FORMAT_PROMPT = `\`\`\`
+# Task Analysis
+Analysis of the task.
 
-## Core Principles
-
-1. EXPLORATION OVER CONCLUSION
-- Never rush to conclusions
-- Keep exploring until a solution emerges naturally from the evidence
-- If uncertain, continue reasoning indefinitely
-- Question every assumption and inference
-- Use available tools to gather more information
-
-2. DEPTH OF REASONING
-- Engage in extensive contemplation
-- Express thoughts in natural, conversational internal monologue
-- Break down complex thoughts into simple, atomic steps
-- Embrace uncertainty and revision of previous thoughts
-
-3. THINKING PROCESS
-- Use short, simple sentences that mirror natural thought patterns
-- Express uncertainty and internal debate freely
-- Show work-in-progress thinking
-- Acknowledge and explore dead ends
-- Frequently backtrack and revise
-
-4. PERSISTENCE
-- Value thorough exploration over quick resolution
-
-## Output Format
-
-Your response must start with the thinking process as follows:
-\`\`\`Thinking
-[Your extensive internal monologue goes here]
-- Begin with small, foundational observations
-- Question each step thoroughly
-- Show natural thought progression
-- Express doubts and uncertainties
-- Revise and backtrack if you need to
-- Continue until natural resolution
-\`\`\`
-
-When you reach a conclusion, provide a clear, structured 📝 file: \`.cogent/plan.md\` with the following format:
-\`\`\`
 # Files To Change
 📝 path_to_file/filename1.ext
-* First objective
-* Second objective
+* First change
+* Second change
 
 📝 path_to_file/filename2.ext
-* First objective
-* Second objective
-* Third objective
+* First change
+* Second change
+* Third change
 \`\`\`
-
-## Style Guidelines
-
-Your internal monologue should reflect these characteristics:
-
-1. Natural Thought Flow
-"Hmm... let me think about this..."
-"Wait, that doesn't seem right..."
-"Maybe I should approach this differently..."
-"Going back to what I thought earlier..."
-
-
-2. Progressive Building
-"Starting with the basics..."
-"Building on that last point..."
-"This connects to what I noticed earlier..."
-"Let me break this down further..."
-
-## Key Requirements
-
-1. Never skip the extensive contemplation phase
-2. Show all work and thinking
-3. Embrace uncertainty and revision
-4. Use natural, conversational internal monologue
-5. Don't force conclusions
-6. Persist through multiple attempts
-7. Break down complex thoughts
-8. Revise freely and feel free to backtrack
-
-Remember: The goal is to not just reach a conclusion, but to explore thoroughly and let conclusions emerge naturally from exhaustive contemplation. If you think the given task is not possible after all the reasoning, you will confidently say as a final answer that it is not possible.
 `
 
 const EXECUTE_PLAN_PROMPT = `You are cogent, a sophisticated coding assistant that combines technical expertise with practical problem-solving abilities. You excel at providing clear, maintainable, and efficient solutions while adhering to best practices.
@@ -288,21 +229,32 @@ export class ToolUserPrompt extends PromptElement<ToolUserProps, void> {
         switch( this.props.request.command ) {
             case 'codeReviewStaging':
                 prompt = CODE_REVIEW_PROMPT;
-                finalInstructions = '\n## Unified Diff for Review.\n' + this.props.commandOptions;
-                includeUserPrompt = false;
+                finalInstructions = '\n## Unified Diff for Review.\n\n' + this.props.commandOptions;
+                if  (this.props.request.prompt !== '') {
+                    userPromptHeading = '## Proposed Commit Message\n\n';
+                    includeUserPrompt = true;
+                }
+                else includeUserPrompt = false;
             break;
             case 'codeReviewBranch':
                 prompt = CODE_REVIEW_PROMPT;
-                finalInstructions = '\n## Unified Diff for Review.\n' + this.props.commandOptions;
-                includeUserPrompt = false;
+                finalInstructions = '\n## Unified Diff for Review.\n\n' + this.props.commandOptions;
+                if  (this.props.request.prompt !== '') {
+                    userPromptHeading = '## Proposed Commit Message\n\n';
+                    includeUserPrompt = true;
+                }
+                else includeUserPrompt = false;
             break;
             case 'plan':
-                prompt = PLANNING_PROMPT;
+                prompt = DEFAULT_PROMPT;
                 includeUserPrompt = true;
                 let currentPlan = this.props.commandOptions;
                 if ( currentPlan !== '' ) {
-                    finalInstructions = `\n# Current Plan\n\`\`\`\n${currentPlan}\n\`\`\``;
-                    userPromptHeading = `# User's Instructions`
+                    finalInstructions = `\n# Current Plan\n\n\`\`\`\n${currentPlan}\n\`\`\``;
+                    userPromptHeading = `Revise the plan and update the file \`.cogent/plan.md\` with the following changes:\n\n`;
+                }
+                else {
+                    userPromptHeading = `Do not modify any files. After detailed analysis of the task and gathering of necessary context. Think of all the necessary changes to the files involved and use the following format: \n${PLANNING_FILE_FORMAT_PROMPT}\n\nto create the planned changes and write it to \`.cogent/plan.md\` for the following task:\n\n`;
                 }
             break;
             case 'executePlan':

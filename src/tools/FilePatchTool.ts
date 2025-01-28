@@ -316,9 +316,6 @@ export class FilePatchTool implements vscode.LanguageModelTool<ApplyDiffInput> {
             ]);
 
         } catch (error) {
-            if (this.diffView) {
-                await this.diffView.close();
-            }
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
             console.error(`Failed to apply diff: ${errorMessage}`);
             return new vscode.LanguageModelToolResult([

@@ -2,7 +2,7 @@
     "name": "cogent",
     "displayName": "Cogent (Auphan Fork)",
     "description": "Cogent is a Copilot extension that gives it agenting capabilities like executing commands, editing and reading files, and more.",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "engines": {
         "vscode": "^1.95.0"
     },
@@ -35,12 +35,12 @@
                 },
                 "cogent.search_include_patterns": {
                     "type": "string",
-                    "default": "*.php,*.tpl,*.js,*.ts,*.html,*.css,*.json,*.md",
+                    "default": "*.php,*.tpl,*.js,*.ts,*.html,*.css,*.scss,*.json,*.md,*.markdown",
                     "description": "Glob expression pattern to include files in search."
                 },
                 "cogent.search_exclude_patterns": {
                     "type": "string",
-                    "default": "**/node_modules/*,**/min/**,**/dev/**",
+                    "default": "**/.git*/*,**/node_modules/*,**/min/**,**/compiled/**,**/dev/**,**/*.tpl.php",
                     "description": "Glob expression pattern to exclude files in search."
                 }
             }
@@ -57,20 +57,24 @@
                         "description": "List all tools available."
                     },
                     {
-                      "name": "codeReviewStaging",
-                      "description": "Code reviews the staged changes in GIT."
+                        "name" : "testmd",
+                        "description": "Test markdown"
+                    },
+                    {
+                        "name": "codeReviewStaging",
+                        "description": "Code reviews the staged changes in GIT. Optionally include your proposed commit message as the prompt."
                     },
                     {
                         "name": "codeReviewBranch",
-                        "description": "Code reviews the changes between this branch and master."
+                        "description": "Code reviews the changes between this branch and master. Optionally include your proposed commit message as the prompt."
                     },
                     {
                         "name": "plan",
-                        "description": "Plan the task and generate a .cogent/plan.md file in the workspace directory."
+                        "description": "Plan/revise the task and generate a `.cogent/plan.md` file in the workspace directory."
                     },
                     {
                         "name": "executePlan",
-                        "description": "Execute the tasks laid out in the .cogent/plan.md file."
+                        "description": "Execute the tasks laid out in the `.cogent/plan.md` file."
                     }
                 ]
             }
@@ -207,17 +211,17 @@
                     "search"
                 ],
                 "displayName": "Search File",
-                "modelDescription": "Search for files by partial filename matching and return relevant file paths",
+                "modelDescription": "Search for files by glob pattern and return relevant file paths",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
-                        "filename": {
+                        "globPatternList": {
                             "type": "string",
-                            "description": "Filename to search for"
+                            "description": "Comma-separated list of glob patterns to search files (e.g., '*.ts,*.js' for TypeScript and JavaScript files)"
                         }
                     },
                     "required": [
-                        "filename"
+                        "globPatternList"
                     ]
                 }
             },
@@ -228,7 +232,7 @@
                     "search"
                 ],
                 "displayName": "Search Text",
-                "modelDescription": "Search for exact text matches in workspace files",
+                "modelDescription": "Search for text matches in workspace files (case insensitive)",
                 "inputSchema": {
                     "type": "object",
                     "properties": {
@@ -247,6 +251,53 @@
                     },
                     "required": [
                         "text"
+                    ]
+                }
+            },
+            {
+                "name": "cogent_openFile",
+                "tags": [
+                    "files",
+                    "editor"
+                ],
+                "displayName": "Open File",
+                "modelDescription": "Open a file in the VS Code editor at a specified line number",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": "Relative path to the file to open"
+                        },
+                        "line": {
+                            "type": "number",
+                            "description": "Line number to navigate to (optional)",
+                            "default": 1
+                        }
+                    },
+                    "required": [
+                        "path"
+                    ]
+                }
+            },
+            {
+                "name": "cogent_codeOutline",
+                "tags": [
+                    "files",
+                    "search"
+                ],
+                "displayName": "Code Outline",
+                "modelDescription": "Return an outline of function signatures and class methods in the specified file",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "path": {
+                            "type": "string",
+                            "description": "Relative path to the file to analyze"
+                        }
+                    },
+                    "required": [
+                        "path"
                     ]
                 }
             }
